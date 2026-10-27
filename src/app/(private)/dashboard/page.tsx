@@ -98,7 +98,7 @@ export default function DashboardPage(): React.JSX.Element {
 
   const [currentTime] = useState<number>(() => Date.now());
 
-  // Helper to test if reservation can be cancelled (2 hours rule: Rule 10)
+  // Función auxiliar para verificar si la reserva se puede cancelar (Regla de negocio 10: anticipación mínima de 2 horas)
   const canCancel = (startTimeIso: string): boolean => {
     const start = new Date(startTimeIso).getTime();
     const twoHoursMs = 2 * 60 * 60 * 1000;
@@ -168,7 +168,7 @@ export default function DashboardPage(): React.JSX.Element {
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Estado de carga */}
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
           <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />

@@ -32,7 +32,7 @@ export const ClientLocalClock: React.FC<ClientLocalClockProps> = ({ className = 
     return () => clearInterval(timer);
   }, []);
 
-  // During SSR or before mounting, render a predictable skeleton or placeholder to avoid hydration mismatch
+  // Durante SSR o antes de montar, se renderiza un marcador de posición para evitar diferencias de hidratación
   if (!mounted) {
     return (
       <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400 ${className}`}>

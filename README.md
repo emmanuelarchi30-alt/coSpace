@@ -215,7 +215,6 @@ cospace/
 │   │   └── globals.css           # Estilos globales y clases utilitarias Liquid Glass
 │   ├── components/
 │   │   ├── ui/
-│   │   │   ├── Ferrofluid.tsx    # Fondo interactivo con simulación de fluido magnético en WebGL
 │   │   │   ├── ParticleText.tsx  # Título interactivo con física de partículas en Canvas
 │   │   │   ├── FolderFloat.tsx   # Fichero interactivo con física 2D en Matter.js
 │   │   │   ├── ClientLocalClock.tsx # Componente de hidratación segura con hora local
