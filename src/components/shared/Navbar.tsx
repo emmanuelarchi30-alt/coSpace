@@ -8,6 +8,7 @@ import LanguageSelector from '@/components/ui/LanguageSelector';
 import ClientLocalClock from '@/components/ui/ClientLocalClock';
 import ElectricButton from '@/components/ui/ElectricButton';
 import { useAuthModal } from '@/lib/AuthModalContext';
+import { isTabSessionActive, clearTabSession } from '@/lib/cookieConsent';
 import { Building2, Calendar, LayoutDashboard, LogIn, LogOut, ShieldAlert, Sparkles, Menu, X } from 'lucide-react';
 
 interface AuthUser {
@@ -38,9 +39,20 @@ export const Navbar: React.FC = () => {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
+          // Si el usuario cerró la pestaña previa sin cerrar sesión manualmente,
+          // la sesión activa de la pestaña habrá expirado en sessionStorage.
+          // En tal caso, se cierra automáticamente la sesión en el servidor
+          // cumpliendo con la directriz de seguridad solicitada.
+          if (!isTabSessionActive()) {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            setUser(null);
+            clearTabSession();
+          } else {
+            setUser(data.user);
+          }
         } else {
           setUser(null);
+          clearTabSession();
         }
       } catch {
         setUser(null);
@@ -55,6 +67,7 @@ export const Navbar: React.FC = () => {
   const handleLogout = async (): Promise<void> => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      clearTabSession();
       setUser(null);
       router.push('/login');
       router.refresh();

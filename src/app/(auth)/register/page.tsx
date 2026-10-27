@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { UserPlus, User, Lock, Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import ElectricButton from '@/components/ui/ElectricButton';
+import { markTabSessionActive, saveUserEmail } from '@/lib/cookieConsent';
 
 export default function RegisterPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -36,6 +37,10 @@ export default function RegisterPage(): React.JSX.Element {
         setLoading(false);
         return;
       }
+
+      // Marcar sesión activa en la pestaña y persistir datos
+      markTabSessionActive();
+      saveUserEmail(email);
 
       router.push('/dashboard');
       router.refresh();

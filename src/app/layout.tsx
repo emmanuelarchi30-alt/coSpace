@@ -3,6 +3,7 @@ import './globals.css';
 import { I18nProvider } from '@/lib/i18n/I18nContext';
 import { AuthModalProvider } from '@/lib/AuthModalContext';
 import GradualBlur from '@/components/ui/GradualBlur';
+import CookieConsentBanner from '@/components/ui/CookieConsentBanner';
 
 export const metadata: Metadata = {
   title: 'CoSpace - Plataforma Inteligente de Reservas de Coworking',
@@ -22,6 +23,9 @@ export default function RootLayout({
             <div className="relative z-10 flex flex-col min-h-screen w-full">
               {children}
             </div>
+            {/* Banner flotante de consentimiento de cookies y sesión segura */}
+            <CookieConsentBanner />
+
             {/* Efecto de desenfoque gradual inferior progresivo con estética Liquid Glass */}
             <GradualBlur
               position="bottom"
