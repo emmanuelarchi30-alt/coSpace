@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n/I18nContext';
+import { AuthModalProvider } from '@/lib/AuthModalContext';
 
 export const metadata: Metadata = {
   title: 'CoSpace - Plataforma Inteligente de Reservas de Coworking',
@@ -16,9 +17,11 @@ export default function RootLayout({
     <html lang="es" className="dark">
       <body className="min-h-screen text-slate-100 antialiased flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
         <I18nProvider>
-          <div className="relative z-10 flex flex-col min-h-screen w-full">
-            {children}
-          </div>
+          <AuthModalProvider>
+            <div className="relative z-10 flex flex-col min-h-screen w-full">
+              {children}
+            </div>
+          </AuthModalProvider>
         </I18nProvider>
       </body>
     </html>

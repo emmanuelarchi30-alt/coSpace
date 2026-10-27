@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
+import { useAuthModal } from '@/lib/AuthModalContext';
 import { Calendar, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface BookingFormProps {
@@ -17,6 +18,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
   spaceName: _spaceName,
 }) => {
   const { t } = useI18n();
+  const { openLoginModal } = useAuthModal();
   const router = useRouter();
 
   // Tomorrow's date formatted as YYYY-MM-DD for default
@@ -75,7 +77,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push(`/login?from=/spaces/${spaceId}`);
+          openLoginModal();
+          setLoading(false);
           return;
         }
         setError(data.error || 'No se pudo procesar la reserva');

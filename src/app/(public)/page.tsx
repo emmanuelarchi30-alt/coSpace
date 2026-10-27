@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
+import { useAuthModal } from '@/lib/AuthModalContext';
 import ParticleText from '@/components/ui/ParticleText';
 import FolderFloat from '@/components/ui/FolderFloat';
 import ElectricBorder from '@/components/ui/ElectricBorder';
@@ -33,6 +34,7 @@ const FOLDER_ITEMS = [
 
 export default function HomePage(): React.JSX.Element {
   const { t } = useI18n();
+  const { openRegisterModal } = useAuthModal();
   const router = useRouter();
 
   return (
@@ -88,12 +90,13 @@ export default function HomePage(): React.JSX.Element {
             <span>{t('home.hero.explore', 'Explorar Catálogo de Espacios')}</span>
             <ArrowRight className="w-4 h-4 text-cyan-100 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link
-            href="/register"
-            className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white hover:scale-105 border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/20 transition-all"
+          <button
+            type="button"
+            onClick={openRegisterModal}
+            className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white hover:scale-105 border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/20 transition-all cursor-pointer"
           >
             {t('nav.register', 'Crear Cuenta Gratis')}
-          </Link>
+          </button>
         </div>
 
         {/* Métricas y beneficios en tiempo real con borde eléctrico animado React Bits */}
