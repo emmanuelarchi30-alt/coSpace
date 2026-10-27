@@ -59,7 +59,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
       const res = await fetch('/api/reservations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
         body: JSON.stringify({
           spaceId,
           startTime: start.toISOString(),

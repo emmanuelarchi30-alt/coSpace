@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { ReservationStatus, Role } from '@prisma/client';
+import { checkIdempotency, saveIdempotencyRecord } from '@/lib/idempotency';
 import {
   calculateTotalPrice,
   validateBookingWindow,
@@ -88,20 +89,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const { spaceId, idempotencyKey } = parsed.data;
+    const headerKey = request.headers.get('idempotency-key') || request.headers.get('x-idempotency-key');
+    const effectiveKey = headerKey || idempotencyKey;
     const startTime = new Date(parsed.data.startTime);
     const endTime = new Date(parsed.data.endTime);
     const now = new Date();
 
-    // Validación de idempotencia para prevenir duplicados por reintentos de red
-    if (idempotencyKey) {
+    // Validación de idempotencia a través de la tabla de idempotencia dedicada
+    if (effectiveKey) {
+      const cached = await checkIdempotency<{ message: string; reservation: unknown }>(
+        effectiveKey,
+        '/api/reservations',
+        session.userId
+      );
+      if (cached) {
+        return NextResponse.json(cached.data, {
+          status: cached.statusCode,
+          headers: { 'X-Cache-Lookup': 'HIT' },
+        });
+      }
+
+      // Validación de respaldo por campo directo en modelo de reservas
       const existing = await prisma.reservation.findUnique({
-        where: { idempotencyKey },
+        where: { idempotencyKey: effectiveKey },
         include: { space: true },
       });
       if (existing) {
         return NextResponse.json(
           { message: 'Reserva previamente procesada (idempotencia)', reservation: existing },
-          { status: 200 }
+          { status: 200, headers: { 'X-Cache-Lookup': 'HIT' } }
         );
       }
     }
@@ -186,7 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         hours: durationHours,
         totalPrice,
         status: ReservationStatus.CONFIRMED,
-        idempotencyKey: idempotencyKey || null,
+        idempotencyKey: effectiveKey || null,
         payment: {
           create: {
             amount: totalPrice,
@@ -221,13 +237,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return NextResponse.json(
-      {
-        message: 'Reserva confirmada con éxito',
-        reservation,
-      },
-      { status: 201 }
-    );
+    const responsePayload = {
+      message: 'Reserva confirmada con éxito',
+      reservation,
+    };
+
+    if (effectiveKey) {
+      await saveIdempotencyRecord(
+        effectiveKey,
+        '/api/reservations',
+        201,
+        responsePayload,
+        session.userId,
+        body
+      );
+    }
+
+    return NextResponse.json(responsePayload, { status: 201 });
   } catch (error) {
     console.error('Error creating reservation:', error);
     return NextResponse.json(

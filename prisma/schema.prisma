@@ -41,10 +41,11 @@ model User {
   password     String
   role         Role           @default(USER)
   refreshToken String?        // Hash del refresh token para validación rápida
-  reservations Reservation[]
-  tokens       RefreshToken[]
-  auditLogs    AuditLog[]
-  createdAt    DateTime       @default(now())
+  reservations    Reservation[]
+  tokens          RefreshToken[]
+  auditLogs       AuditLog[]
+  idempotencyKeys IdempotencyKey[]
+  createdAt       DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
   @@map("users")
@@ -164,4 +165,22 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@map("audit_logs")
+}
+
+// Registro dedicado para control de idempotencia y prevención de operaciones duplicadas
+model IdempotencyKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  route       String   // Ruta de la petición (ej. /api/reservations)
+  requestHash String?  // Hash o resumen de los parámetros de la solicitud
+  statusCode  Int      @default(200)
+  response    Json     // Respuesta JSON almacenada para reemisión transparente
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime // Fecha de expiración de la clave de idempotencia
+
+  @@index([key])
+  @@index([userId])
+  @@map("idempotency_keys")
 }

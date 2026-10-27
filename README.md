@@ -215,6 +215,7 @@ cospace/
 │   │   └── globals.css           # Estilos globales y clases utilitarias Liquid Glass
 │   ├── components/
 │   │   ├── ui/
+│   │   │   ├── Ferrofluid.tsx    # Fondo interactivo de fluido magnético con física en WebGL2
 │   │   │   ├── ParticleText.tsx  # Título interactivo con física de partículas en Canvas
 │   │   │   ├── FolderFloat.tsx   # Fichero interactivo con física 2D en Matter.js
 │   │   │   ├── ClientLocalClock.tsx # Componente de hidratación segura con hora local
@@ -229,11 +230,13 @@ cospace/
 │   ├── lib/
 │   │   ├── prisma.ts             # Cliente Singleton de Prisma
 │   │   ├── auth.ts               # Lógica JWT, cookies seguras y hashing de refresh token
+│   │   ├── idempotency.ts        # Control y almacenamiento de claves de idempotencia
 │   │   ├── rateLimit.ts          # Limitador de tasa en memoria para login (Extra)
 │   │   ├── businessRules.ts      # Funciones puras de validación de reglas de negocio
 │   │   └── i18n/                 # Diccionarios de traducción y hook useI18n
 │   └── tests/
-│       └── businessRules.test.ts # Suite de 14 pruebas unitarias de reglas de negocio
+│       ├── businessRules.test.ts # Suite de 14 pruebas unitarias de reglas de negocio
+│       └── idempotency.test.ts   # Suite de pruebas unitarias para idempotencia
 ```
 
 ---
