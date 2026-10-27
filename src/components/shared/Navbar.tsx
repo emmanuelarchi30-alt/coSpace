@@ -62,9 +62,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full liquid-glass-nav border-b border-white/10 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 border border-white/25 group-hover:scale-105 transition-transform">
             <Building2 className="w-5 h-5 text-white" />
           </div>
@@ -72,14 +72,14 @@ export const Navbar: React.FC = () => {
             <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
               CoSpace
             </span>
-            <span className="text-[10px] tracking-widest uppercase text-cyan-400/80 font-mono">
+            <span className="text-[10px] tracking-widest uppercase text-cyan-400 font-mono font-medium">
               Liquid Coworking
             </span>
           </div>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1.5 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+        <nav className="hidden md:flex items-center gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
           <Link
             href="/"
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
                 isActive('/admin')
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                  : 'text-cyan-400/80 hover:text-cyan-300 hover:bg-cyan-500/10'
+                  : 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10'
               }`}
             >
               <ShieldAlert className="w-4 h-4 text-cyan-400" />
@@ -131,7 +131,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         {/* Right Side: Hydration Clock, Language Selector & Auth */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {/* Hydration Safe Client Clock */}
           <div className="hidden lg:block">
             <ClientLocalClock />
@@ -208,16 +208,16 @@ export const Navbar: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Link
                     href="/login"
-                    className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5"
+                    className="liquid-glass-btn-secondary px-3.5 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5"
                   >
-                    <LogIn className="w-4 h-4" />
+                    <LogIn className="w-3.5 h-3.5 text-cyan-300" />
                     <span>{t('nav.login')}</span>
                   </Link>
                   <Link
                     href="/register"
-                    className="liquid-glass-btn px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-1.5 shadow-lg shadow-cyan-500/25"
+                    className="liquid-glass-btn px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 shadow-lg shadow-cyan-500/25"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5 text-white" />
                     <span>{t('nav.register')}</span>
                   </Link>
                 </div>
