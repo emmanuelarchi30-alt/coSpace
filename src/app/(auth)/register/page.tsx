@@ -1,0 +1,145 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useI18n } from '@/lib/i18n/I18nContext';
+import { UserPlus, User, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+
+export default function RegisterPage(): React.JSX.Element {
+  const { t } = useI18n();
+  const router = useRouter();
+
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Error al registrar la cuenta');
+        setLoading(false);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch {
+      setError('Error al conectar con el servidor.');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="liquid-glass p-8 rounded-3xl border border-white/20 shadow-2xl relative">
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-black text-white tracking-tight">
+          {t('auth.registerTitle')}
+        </h1>
+        <p className="text-xs text-slate-400 mt-1">
+          {t('auth.registerSubtitle')}
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-5 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            {t('form.name')}
+          </label>
+          <div className="relative">
+            <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Juan Pérez"
+              className="w-full liquid-glass-input pl-10 pr-4 py-2.5 rounded-xl text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            {t('form.email')}
+          </label>
+          <div className="relative">
+            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              className="w-full liquid-glass-input pl-10 pr-4 py-2.5 rounded-xl text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            {t('form.password')}
+          </label>
+          <div className="relative">
+            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              className="w-full liquid-glass-input pl-10 pr-4 py-2.5 rounded-xl text-sm"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all mt-2"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Creando cuenta...</span>
+            </>
+          ) : (
+            <>
+              <UserPlus className="w-4 h-4" />
+              <span>{t('auth.submitRegister')}</span>
+            </>
+          )}
+        </button>
+      </form>
+
+      <div className="mt-6 text-center text-xs text-slate-400">
+        <span>{t('auth.hasAccount')} </span>
+        <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors">
+          {t('auth.submitLogin')}
+        </Link>
+      </div>
+    </div>
+  );
+}
