@@ -39,7 +39,55 @@ export default function HomePage(): React.JSX.Element {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
+    <div className="home-page" style={{ position: 'relative', isolation: 'isolate' }}>
+      <div
+        className="home-video-background"
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 0,
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          background: '#080c18',
+        }}
+      >
+        <video
+          className="home-video-background__video"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'block',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.48,
+            filter: 'saturate(0.78)',
+          }}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          tabIndex={-1}
+        >
+          <source src="/background.mp4" type="video/mp4" />
+        </video>
+        <div
+          className="home-video-background__overlay"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(180deg, rgba(8, 12, 24, 0.48), rgba(8, 12, 24, 0.72)), radial-gradient(circle at 50% 35%, transparent 0%, rgba(8, 12, 24, 0.48) 100%)',
+          }}
+        />
+      </div>
+
+      <div
+        className="home-page__content flex flex-col items-center justify-center w-full"
+        style={{ position: 'relative', zIndex: 1 }}
+      >
       {/* Sección Principal Hero */}
       <section className="relative w-full py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
 
@@ -323,6 +371,7 @@ export default function HomePage(): React.JSX.Element {
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }
