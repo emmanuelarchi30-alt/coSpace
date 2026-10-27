@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Building2 } from 'lucide-react';
+import { Building2, ArrowLeft } from 'lucide-react';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 
 export default function AuthLayout({
@@ -10,16 +10,25 @@ export default function AuthLayout({
 }): React.JSX.Element {
   return (
     <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden bg-gradient-to-b from-slate-950 via-[#0a1120] to-slate-950">
-      {/* Top Bar with Logo & Language Toggle */}
-      <div className="w-full max-w-6xl mx-auto flex items-center justify-between z-10">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-white/20">
-            <Building2 className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
-            CoSpace
-          </span>
-        </Link>
+      {/* Top Bar with Logo, Back Link & Language Toggle */}
+      <div className="w-full max-w-6xl mx-auto flex items-center justify-between z-10 gap-3">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-white/20">
+              <Building2 className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
+              CoSpace
+            </span>
+          </Link>
+          <Link
+            href="/"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Volver al Inicio</span>
+          </Link>
+        </div>
         <LanguageSelector />
       </div>
 

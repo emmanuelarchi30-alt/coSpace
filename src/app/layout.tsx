@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n/I18nContext';
-import WebThreads from '@/components/ui/WebThreads';
+import Ferrofluid from '@/components/ui/Ferrofluid';
 
 export const metadata: Metadata = {
   title: 'CoSpace - Plataforma Inteligente de Reservas de Coworking',
@@ -16,17 +16,17 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
-        {/* Ambient WebThreads Interactive Background from React Bits */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-50 w-full h-full">
-          <WebThreads
-            colors={['#06b6d4', '#8b5cf6', '#3b82f6', '#0ea5e9']}
-            coreColor="#ffffff"
-            threadCount={8}
-            spread={0.22}
-            speed={0.18}
-            glow={0.03}
-            thickness={1.3}
+        {/* Ambient Ferrofluid Interactive Background from React Bits */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-45 w-full h-full">
+          <Ferrofluid
+            colors={['#ffffff', '#06b6d4', '#06b6d4']}
+            spikeHeight={1}
+            sharpness={2.5}
+            tilt={48}
+            magnets={2}
             mouseInteraction={true}
+            clickPulse={true}
+            transparent={true}
           />
         </div>
 

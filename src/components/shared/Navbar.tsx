@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 import ClientLocalClock from '@/components/ui/ClientLocalClock';
-import { Building2, Calendar, LayoutDashboard, LogIn, LogOut, ShieldAlert, Sparkles } from 'lucide-react';
+import { Building2, Calendar, LayoutDashboard, LogIn, LogOut, ShieldAlert, Sparkles, Menu, X } from 'lucide-react';
 
 interface AuthUser {
   id: string;
@@ -22,6 +22,12 @@ export const Navbar: React.FC = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMobileNavOpen(false);
+    setMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const fetchSession = async (): Promise<void> => {
@@ -224,8 +230,68 @@ export const Navbar: React.FC = () => {
               )}
             </>
           )}
+
+          {/* Mobile Menu Hamburger Toggle */}
+          <button
+            type="button"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            className="md:hidden p-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200"
+            aria-label="Abrir menú de navegación"
+          >
+            {mobileNavOpen ? <X className="w-5 h-5 text-cyan-300" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Nav Drawer */}
+      {mobileNavOpen && (
+        <div className="md:hidden border-t border-white/10 px-4 py-3 liquid-glass flex flex-col gap-2">
+          <Link
+            href="/"
+            onClick={() => setMobileNavOpen(false)}
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              isActive('/')
+                ? 'bg-white/15 text-white font-bold'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            {t('nav.home')}
+          </Link>
+          <Link
+            href="/spaces"
+            onClick={() => setMobileNavOpen(false)}
+            className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              isActive('/spaces')
+                ? 'bg-white/15 text-white font-bold'
+                : 'text-slate-300 hover:text-white'
+            }`}
+          >
+            {t('nav.spaces')}
+          </Link>
+          {user && (
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileNavOpen(false)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                isActive('/dashboard')
+                  ? 'bg-white/15 text-white font-bold'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              {t('nav.dashboard')}
+            </Link>
+          )}
+          {user?.role === 'ADMIN' && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileNavOpen(false)}
+              className="px-4 py-2.5 rounded-xl text-sm font-medium text-amber-300 hover:bg-amber-500/10"
+            >
+              {t('nav.admin')}
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   );
 };

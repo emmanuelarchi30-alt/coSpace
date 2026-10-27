@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
-import { UserPlus, User, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { UserPlus, User, Lock, Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function RegisterPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -46,12 +46,23 @@ export default function RegisterPage(): React.JSX.Element {
 
   return (
     <div className="liquid-glass p-8 rounded-3xl border border-white/20 shadow-2xl relative">
+      {/* Return to Home Button */}
+      <div className="mb-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-cyan-300 transition-colors group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>{t('detail.back', 'Volver al Inicio')}</span>
+        </Link>
+      </div>
+
       <div className="text-center mb-6">
         <h1 className="text-2xl font-black text-white tracking-tight">
-          {t('auth.registerTitle')}
+          {t('auth.registerTitle', 'Crear Cuenta en CoSpace')}
         </h1>
         <p className="text-xs text-slate-400 mt-1">
-          {t('auth.registerSubtitle')}
+          {t('auth.registerSubtitle', 'Empieza a reservar escritorios y salas de coworking por horas')}
         </p>
       </div>
 
@@ -65,7 +76,7 @@ export default function RegisterPage(): React.JSX.Element {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            {t('form.name')}
+            {t('form.name', 'Nombre completo')}
           </label>
           <div className="relative">
             <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -82,7 +93,7 @@ export default function RegisterPage(): React.JSX.Element {
 
         <div>
           <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            {t('form.email')}
+            {t('form.email', 'Correo electrónico')}
           </label>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -99,7 +110,7 @@ export default function RegisterPage(): React.JSX.Element {
 
         <div>
           <label className="block text-xs font-medium text-slate-300 mb-1.5">
-            {t('form.password')}
+            {t('form.password', 'Contraseña (mínimo 6 caracteres)')}
           </label>
           <div className="relative">
             <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -128,16 +139,16 @@ export default function RegisterPage(): React.JSX.Element {
           ) : (
             <>
               <UserPlus className="w-4 h-4" />
-              <span>{t('auth.submitRegister')}</span>
+              <span>{t('auth.submitRegister', 'Registrarme')}</span>
             </>
           )}
         </button>
       </form>
 
       <div className="mt-6 text-center text-xs text-slate-400">
-        <span>{t('auth.hasAccount')} </span>
+        <span>{t('auth.hasAccount', '¿Ya tienes una cuenta registrada?')} </span>
         <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors">
-          {t('auth.submitLogin')}
+          {t('auth.submitLogin', 'Inicia sesión')}
         </Link>
       </div>
     </div>

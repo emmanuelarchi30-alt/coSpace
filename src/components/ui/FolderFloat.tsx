@@ -196,6 +196,7 @@ export default function FolderFloat({
   }, [onSelect, onOpenChange, drift]);
   const popTimer = useRef<NodeJS.Timeout | undefined>(undefined);
   const liveTimer = useRef<NodeJS.Timeout | undefined>(undefined);
+  const lastPickRef = useRef<number>(0);
   const list: NormalizedItem[] = items.map((item) =>
     typeof item === 'string' ? { label: item, value: item } : item
   );
@@ -362,13 +363,16 @@ export default function FolderFloat({
     [stopPhysics]
   );
 
-  const pick = (item: NormalizedItem, i: number): void => {
+  const pick = useCallback((item: NormalizedItem, i: number): void => {
+    const now = typeof performance !== 'undefined' ? performance.now() : 0;
+    if (now - lastPickRef.current < 250) return;
+    lastPickRef.current = now;
     latest.current.onSelect?.(item.value, i);
     clearTimeout(popTimer.current);
     setPopped(i);
     popTimer.current = setTimeout(() => setPopped(-1), 320);
     if (closeOnSelect) set(false);
-  };
+  }, [closeOnSelect, set]);
 
   const pointerAt = (e: React.PointerEvent): { x: number; y: number } => {
     const r = anchorRef.current?.getBoundingClientRect();
@@ -420,15 +424,19 @@ export default function FolderFloat({
   const up = (e: React.PointerEvent<HTMLButtonElement>, i: number, item: NormalizedItem): void => {
     const w = world.current;
     const d = w.drag;
-    if (!d || d.i !== i || d.id !== e.pointerId) return;
-    w.drag = null;
-    e.currentTarget.removeAttribute('data-drag');
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
+    const wasMoved = Boolean(d?.moved);
+    if (d && d.i === i && d.id === e.pointerId) {
+      w.drag = null;
+      e.currentTarget.removeAttribute('data-drag');
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
     }
-    if (!d.moved && e.type === 'pointerup') pick(item, i);
+    if (!wasMoved && e.type === 'pointerup') {
+      pick(item, i);
+    }
   };
 
   const hover = trigger === 'hover';
@@ -504,7 +512,10 @@ export default function FolderFloat({
               onPointerUp={(e: React.PointerEvent<HTMLButtonElement>) => up(e, i, item)}
               onPointerCancel={(e: React.PointerEvent<HTMLButtonElement>) => up(e, i, item)}
               onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                if (!world.current.live || e.detail === 0) pick(item, i);
+                e.stopPropagation();
+                if (!world.current.drag?.moved) {
+                  pick(item, i);
+                }
               }}
             >
               <span className="folder-float__drift">{item.label}</span>

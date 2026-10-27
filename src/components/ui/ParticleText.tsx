@@ -45,15 +45,22 @@ const resolveFontSize = (
 };
 
 const waitForFonts = async (font: string): Promise<void> => {
-  if (!('fonts' in document)) return;
+  if (typeof document === 'undefined' || !('fonts' in document)) return;
 
   try {
-    await document.fonts.load(font);
+    const timeout = new Promise<void>((resolve) => setTimeout(resolve, 150));
+    const fontLoad = (async (): Promise<void> => {
+      try {
+        await document.fonts.load(font);
+        await document.fonts.ready;
+      } catch {
+        // ignore
+      }
+    })();
+    await Promise.race([fontLoad, timeout]);
   } catch {
     // ignore
   }
-
-  await document.fonts.ready;
 };
 
 export interface ParticleTextProps {
@@ -634,7 +641,12 @@ const ParticleText: React.FC<ParticleTextProps> = ({
       sampledKey = layoutKey(s);
       sampledText = s.text;
 
-      if (nextWidth <= 0 || nextHeight <= 0) return;
+      if (nextWidth <= 0 || nextHeight <= 0) {
+        requestAnimationFrame(() => {
+          if (alive) sampleText();
+        });
+        return;
+      }
 
       const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
       const resolvedFamily = family(s);

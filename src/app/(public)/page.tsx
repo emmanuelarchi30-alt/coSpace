@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useI18n } from '@/lib/i18n/I18nContext';
 import ParticleText from '@/components/ui/ParticleText';
 import FolderFloat from '@/components/ui/FolderFloat';
 import {
@@ -17,10 +21,19 @@ import {
   Zap,
 } from 'lucide-react';
 
-// Strategy: SSG (Static Site Generation as required by Requirement 4)
-export const dynamic = 'force-static';
+const FOLDER_ITEMS = [
+  { label: '👥 Salas de Reunión 4K', value: '/spaces?type=MEETING_ROOM' },
+  { label: '🎧 Cabinas Insonorizadas', value: '/spaces?type=CABIN' },
+  { label: '🖥️ Escritorios Ergonómicos', value: '/spaces?type=DESK' },
+  { label: '⚡ Reservas de 1 a 4 Horas', value: '/spaces' },
+  { label: '🕒 Horario 7:00 a 21:00', value: '/spaces' },
+  { label: '📋 Mis Reservas Activas', value: '/dashboard' },
+];
 
 export default function HomePage(): React.JSX.Element {
+  const { t } = useI18n();
+  const router = useRouter();
+
   return (
     <div className="flex flex-col items-center justify-center w-full">
       {/* Hero Section */}
@@ -33,31 +46,31 @@ export default function HomePage(): React.JSX.Element {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-xl mb-4 shadow-lg shadow-cyan-500/10">
           <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
           <span className="text-xs font-semibold tracking-wide text-cyan-200">
-            Plataforma Inteligente de Coworking por Horas
+            {t('home.badge', 'Plataforma Inteligente de Coworking por Horas')}
           </span>
         </div>
 
         {/* ParticleText React Bits Component Integration */}
-        <div className="w-full max-w-4xl h-52 sm:h-64 my-1 relative flex items-center justify-center">
+        <div className="w-full max-w-4xl h-48 sm:h-64 my-1 relative flex items-center justify-center">
           <ParticleText
             text="CoSpace"
-            particleSize={2.2}
-            density={3.5}
+            particleSize={2.0}
+            density={3.0}
             color="#f8fafc"
             highlightColor="#06b6d4"
             highlightMode="motion"
             shape="circle"
             intro="gather"
-            scatter={160}
-            gatherDuration={1500}
-            stagger={380}
+            scatter={100}
+            gatherDuration={1200}
+            stagger={200}
             clickBurst={true}
-            burstStrength={1}
-            pointerRepel={35}
-            repelRadius={110}
-            idleDrift={0.6}
-            trigger="hover"
-            fontSize="clamp(3.5rem, 11vw, 7.5rem)"
+            burstStrength={0.8}
+            pointerRepel={30}
+            repelRadius={100}
+            idleDrift={0.5}
+            trigger="mount"
+            fontSize="clamp(3.5rem, 10vw, 7rem)"
             fontWeight={900}
             glow={true}
           />
@@ -65,8 +78,7 @@ export default function HomePage(): React.JSX.Element {
 
         {/* Subtitle */}
         <p className="max-w-2xl text-base sm:text-lg text-slate-200 font-normal leading-relaxed mb-8 px-4">
-          Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas.
-          Infraestructura de alta velocidad con diseño <span className="text-cyan-300 font-semibold">Liquid Glass</span>.
+          {t('home.hero.subtitle', 'Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas con diseño Liquid Glass.')}
         </p>
 
         {/* Action Buttons */}
@@ -75,14 +87,14 @@ export default function HomePage(): React.JSX.Element {
             href="/spaces"
             className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group"
           >
-            <span>Explorar Catálogo de Espacios</span>
+            <span>{t('home.hero.explore', 'Explorar Catálogo de Espacios')}</span>
             <ArrowRight className="w-4 h-4 text-cyan-100 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href="/register"
             className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white"
           >
-            Crear Cuenta Gratis
+            {t('nav.register', 'Crear Cuenta Gratis')}
           </Link>
         </div>
 
@@ -129,32 +141,25 @@ export default function HomePage(): React.JSX.Element {
           </div>
         </div>
 
-        {/* FolderFloat React Bits Component Integration for Business Rules */}
+        {/* FolderFloat React Bits Component Integration with Actionable Navigation */}
         <div className="w-full max-w-2xl my-8 p-6 sm:p-8 rounded-3xl liquid-glass border border-white/20 flex flex-col items-center shadow-2xl relative">
           <div className="text-center mb-6">
             <span className="text-[11px] font-mono tracking-widest text-cyan-300 uppercase font-bold">
-              Reglas de Negocio Interactivas
+              {t('home.rules.title', 'Navegación Interactiva CoSpace')}
             </span>
             <h3 className="text-xl font-bold text-white mt-1">
-              Políticas de Reserva Transparentes
+              Atajos y Espacios Disponibles
             </h3>
             <p className="text-xs text-slate-300 max-w-md mx-auto mt-1">
-              Pasa el cursor o presiona las notas flotantes con física 2D para descubrir las condiciones de uso.
+              Pasa el cursor o haz clic en cualquier ficha flotante para navegar directamente al espacio o sección deseada.
             </p>
           </div>
 
           <div className="py-6 flex items-center justify-center w-full min-h-[220px]">
             <FolderFloat
-              items={[
-                '1 a 4 horas completas',
-                'Horario: 7:00 a 21:00',
-                'Cancela hasta 2h antes',
-                'Máx. 3 reservas futuras',
-                'Salas con pantallas 4K',
-                'WiFi 6 simétrico 1Gbps',
-              ]}
-              label="Reglamento CoSpace"
-              sublabel="6 normas clave"
+              items={FOLDER_ITEMS}
+              label="Atajos CoSpace"
+              sublabel="6 accesos rápidos"
               trigger="hover"
               physics={true}
               drift={0.6}
@@ -164,10 +169,14 @@ export default function HomePage(): React.JSX.Element {
               itemColor="#06b6d4"
               itemTextColor="#020617"
               labelColor="#38bdf8"
-              width={220}
-              height={140}
-              spread={190}
-              lift={28}
+              width={240}
+              height={150}
+              spread={200}
+              lift={30}
+              closeOnSelect={false}
+              onSelect={(value: string) => {
+                router.push(value);
+              }}
             />
           </div>
         </div>
