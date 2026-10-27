@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 import ClientLocalClock from '@/components/ui/ClientLocalClock';
+import ElectricButton from '@/components/ui/ElectricButton';
 import { useAuthModal } from '@/lib/AuthModalContext';
 import { Building2, Calendar, LayoutDashboard, LogIn, LogOut, ShieldAlert, Sparkles, Menu, X } from 'lucide-react';
 
@@ -214,22 +215,26 @@ export const Navbar: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
+                  <ElectricButton
                     onClick={openLoginModal}
-                    className="liquid-glass-btn-secondary px-3.5 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5 border border-cyan-500/40 hover:border-cyan-400 shadow-md shadow-cyan-500/20 transition-all hover:scale-105 cursor-pointer"
+                    color="#06b6d4"
+                    borderRadius={12}
+                    thickness={1.2}
+                    className="liquid-glass-btn-secondary px-3.5 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5 border border-cyan-500/40 hover:border-cyan-400 shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
                   >
                     <LogIn className="w-3.5 h-3.5 text-cyan-300" />
                     <span>{t('nav.login')}</span>
-                  </button>
-                  <button
-                    type="button"
+                  </ElectricButton>
+                  <ElectricButton
                     onClick={openRegisterModal}
-                    className="liquid-glass-btn px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 border border-purple-500/50 hover:border-purple-400 shadow-lg shadow-purple-500/30 transition-all hover:scale-105 cursor-pointer"
+                    color="#8b5cf6"
+                    borderRadius={12}
+                    thickness={1.3}
+                    className="liquid-glass-btn px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 border border-purple-500/50 hover:border-purple-400 shadow-lg shadow-purple-500/30 transition-all cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-white" />
                     <span>{t('nav.register')}</span>
-                  </button>
+                  </ElectricButton>
                 </div>
               )}
             </>

@@ -15,6 +15,7 @@ import {
   KeyRound,
   CheckCircle2,
 } from 'lucide-react';
+import ElectricButton from './ElectricButton';
 
 export interface AuthModalProps {
   isOpen: boolean;
@@ -239,10 +240,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              <button
+              <ElectricButton
                 type="submit"
                 disabled={loginLoading}
-                className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 mt-2"
+                color="#06b6d4"
+                borderRadius={12}
+                thickness={1.3}
+                wrapperClassName="w-full mt-2"
+                className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {loginLoading ? (
                   <>
@@ -255,39 +260,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <span>{t('auth.submitLogin', 'Ingresar a CoSpace')}</span>
                   </>
                 )}
-              </button>
+              </ElectricButton>
             </form>
 
-            {/* Accesos rápidos de 1-clic */}
+            {/* Credenciales de Prueba del Seed */}
             <div className="mt-5 pt-4 border-t border-white/10 text-center">
-              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
-                <KeyRound className="w-3 h-3 text-cyan-400" />
-                Acceso rápido de prueba (1-clic):
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
+                <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
+                Credenciales de Prueba del Seed:
               </span>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3">
                 <button
                   type="button"
                   onClick={() => {
                     setLoginEmail('admin@cospace.com');
                     setLoginPassword('AdminPassword123!');
-                    handleLoginSubmit(undefined, 'admin@cospace.com', 'AdminPassword123!');
+                    setLoginError(null);
                   }}
-                  className="px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-semibold text-amber-300 transition-all text-left"
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer hover:scale-105"
                 >
-                  👑 Admin
-                  <span className="block text-[9px] text-slate-400 truncate font-mono">admin@cospace.com</span>
+                  Admin (admin@cospace.com)
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setLoginEmail('demo@cospace.com');
                     setLoginPassword('UserPassword123!');
-                    handleLoginSubmit(undefined, 'demo@cospace.com', 'UserPassword123!');
+                    setLoginError(null);
                   }}
-                  className="px-2.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-[11px] font-semibold text-cyan-300 transition-all text-left"
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-semibold text-xs shadow-md shadow-cyan-500/10 transition-all cursor-pointer hover:scale-105"
                 >
-                  👤 Usuario
-                  <span className="block text-[9px] text-slate-400 truncate font-mono">demo@cospace.com</span>
+                  Usuario (demo@cospace.com)
                 </button>
               </div>
             </div>
@@ -366,10 +369,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              <button
+              <ElectricButton
                 type="submit"
                 disabled={regLoading}
-                className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 mt-2"
+                color="#8b5cf6"
+                borderRadius={12}
+                thickness={1.3}
+                wrapperClassName="w-full mt-2"
+                className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {regLoading ? (
                   <>
@@ -382,7 +389,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <span>{t('auth.submitRegister', 'Registrarme')}</span>
                   </>
                 )}
-              </button>
+              </ElectricButton>
             </form>
           </div>
         )}

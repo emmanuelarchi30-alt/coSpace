@@ -5,7 +5,7 @@ import './ElectricBorder.css';
 
 const ARCS = 4;
 const PULSES = 3;
-const MARGIN = 64;
+const DEFAULT_MARGIN = 24;
 const PIXEL_BUDGET = 3e6;
 const SURGE_SPEED = 560;
 const HALF_PI = Math.PI / 2;
@@ -290,7 +290,6 @@ const compile = (gl: WebGL2RenderingContext, type: number, source: string): WebG
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error(gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
@@ -317,7 +316,6 @@ const link = (gl: WebGL2RenderingContext): ProgramResult | null => {
   gl.deleteShader(vertex);
   gl.deleteShader(fragment);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error(gl.getProgramInfoLog(program));
     gl.deleteProgram(program);
     return null;
   }
@@ -454,6 +452,7 @@ export interface ElectricBorderProps {
   theme?: 'dark' | 'light';
   className?: string;
   style?: React.CSSProperties;
+  margin?: number;
 }
 
 export const ElectricBorder: React.FC<ElectricBorderProps> = ({
@@ -478,6 +477,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
   theme = 'dark',
   className = '',
   style,
+  margin = DEFAULT_MARGIN,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -504,6 +504,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
     interactive,
     cursorRadius: Math.max(1, cursorRadius),
     light: theme === 'light',
+    margin: Math.max(8, margin),
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -517,16 +518,26 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    const gl = canvas.getContext('webgl2', {
-      alpha: true,
-      premultipliedAlpha: true,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      powerPreference: 'default',
-    });
+    let gl: WebGL2RenderingContext | null = null;
+    try {
+      gl = canvas.getContext('webgl2', {
+        alpha: true,
+        premultipliedAlpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: 'default',
+      });
+    } catch {
+      gl = null;
+    }
+
     const program = gl ? link(gl) : null;
-    if (!gl || !program) return;
+    if (!gl || !program) {
+      canvas.style.display = 'none';
+      container.classList.add('electric-border--fallback');
+      return;
+    }
 
     const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const vao = gl.createVertexArray();
@@ -553,10 +564,11 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
 
     const resize = (): void => {
       const s = settingsRef.current;
+      const m = s.margin;
       const width = Math.max(1, container.offsetWidth);
       const height = Math.max(1, container.offsetHeight);
-      const canvasWidth = width + MARGIN * 2;
-      const canvasHeight = height + MARGIN * 2;
+      const canvasWidth = width + m * 2;
+      const canvasHeight = height + m * 2;
       const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(PIXEL_BUDGET / (canvasWidth * canvasHeight)));
       const pixelWidth = Math.max(1, Math.round(canvasWidth * ratio));
       const pixelHeight = Math.max(1, Math.round(canvasHeight * ratio));
@@ -571,6 +583,8 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
     };
 
     const spawnArc = (now: number, near: number | null): Spark => {
+      const s = settingsRef.current;
+      const m = s.margin;
       const span = Math.min(path.perimeter * 0.3, 60 + Math.random() * 90);
       const start = near ?? Math.random() * path.perimeter;
       const from = start - span * (0.2 + Math.random() * 0.6);
@@ -582,7 +596,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       const dy = b.y - a.y;
       const length = Math.hypot(dx, dy) || 1;
       const side = (-dy / length) * mid.nx + (dx / length) * mid.ny;
-      const bow = Math.min(MARGIN - 30, length * (0.14 + Math.random() * 0.16) + 5);
+      const bow = Math.min(Math.max(4, m - 10), length * (0.14 + Math.random() * 0.16) + 5);
       return {
         ax: a.x,
         ay: a.y,
@@ -597,8 +611,9 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
 
     const render = (s: typeof settings, heatPower: number): void => {
       const u = program.uniforms;
-      const width = size.width + MARGIN * 2;
-      const height = size.height + MARGIN * 2;
+      const m = s.margin;
+      const width = size.width + m * 2;
+      const height = size.height + m * 2;
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -626,7 +641,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       gl.uniform1f(u.uTime, time);
       gl.uniform1f(u.uPower, power * power * (3 - 2 * power));
       gl.uniform1f(u.uReveal, reveal);
-      gl.uniform3f(u.uHover, hover.x + MARGIN, hover.y + MARGIN, heatPower);
+      gl.uniform3f(u.uHover, hover.x + m, hover.y + m, heatPower);
       gl.uniform1f(u.uHoverRadius, s.cursorRadius);
       gl.uniform4fv(u.uPulses, pulseData);
       gl.uniform3fv(u.uCore, s.core);
@@ -693,10 +708,11 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
           continue;
         }
         const k = clamp((time - spark.born) / spark.life, 0, 1);
-        arcEnds[o] = spark.ax + size.width / 2 + MARGIN;
-        arcEnds[o + 1] = spark.ay + size.height / 2 + MARGIN;
-        arcEnds[o + 2] = spark.bx + size.width / 2 + MARGIN;
-        arcEnds[o + 3] = spark.by + size.height / 2 + MARGIN;
+        const m = s.margin;
+        arcEnds[o] = spark.ax + size.width / 2 + m;
+        arcEnds[o + 1] = spark.ay + size.height / 2 + m;
+        arcEnds[o + 2] = spark.bx + size.width / 2 + m;
+        arcEnds[o + 3] = spark.by + size.height / 2 + m;
         arcShape[o] = spark.bow;
         arcShape[o + 1] = Math.sin(Math.PI * k) * fit;
         arcShape[o + 2] = spark.seed;
@@ -735,14 +751,15 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
 
     const locate = (event: PointerEvent | MouseEvent): void => {
       const rect = container.getBoundingClientRect();
+      const m = settingsRef.current.margin;
       pointer.x = event.clientX - rect.left;
       pointer.y = event.clientY - rect.top;
       pointer.over = pointer.x >= 0 && pointer.y >= 0 && pointer.x <= rect.width && pointer.y <= rect.height;
       pointer.near =
-        pointer.x >= -MARGIN / 2 &&
-        pointer.y >= -MARGIN / 2 &&
-        pointer.x <= rect.width + MARGIN / 2 &&
-        pointer.y <= rect.height + MARGIN / 2;
+        pointer.x >= -m / 2 &&
+        pointer.y >= -m / 2 &&
+        pointer.x <= rect.width + m / 2 &&
+        pointer.y <= rect.height + m / 2;
     };
 
     const onPointerMove = (event: PointerEvent): void => {
@@ -815,6 +832,8 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       if (!gl.isContextLost()) {
         gl.deleteVertexArray(vao);
         gl.deleteProgram(program.program);
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
       }
     };
   }, [generation]);
@@ -831,7 +850,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       <canvas
         ref={canvasRef}
         className="electric-border__canvas"
-        style={{ top: -MARGIN, left: -MARGIN, pointerEvents: 'none' }}
+        style={{ top: -settings.margin, left: -settings.margin, pointerEvents: 'none' }}
         aria-hidden="true"
       />
     </div>

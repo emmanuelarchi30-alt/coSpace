@@ -2,12 +2,17 @@
   position: relative;
   isolation: isolate;
   display: inline-block;
+  transition: box-shadow 0.3s ease;
 }
 
 .electric-border__content {
   position: relative;
   z-index: 2;
   pointer-events: auto;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .electric-border__canvas {
@@ -15,4 +20,25 @@
   z-index: 1;
   display: block;
   pointer-events: none !important;
+  background: transparent !important;
+}
+
+.electric-border--fallback {
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.6);
+  animation: electric-pulse 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes electric-pulse {
+  0% {
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+    filter: drop-shadow(0 0 4px rgba(6, 182, 212, 0.3));
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.85);
+    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.6));
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.35));
+  }
 }

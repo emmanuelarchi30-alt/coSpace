@@ -17,6 +17,7 @@ export interface ElectricButtonProps extends React.ButtonHTMLAttributes<HTMLButt
   arcs?: number;
   interactive?: boolean;
   wrapperClassName?: string;
+  margin?: number;
   children: React.ReactNode;
 }
 
@@ -34,12 +35,15 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
   interactive = true,
   wrapperClassName = '',
   className = '',
+  margin = 18,
   children,
   onClick,
   disabled,
   type = 'button',
   ...rest
 }) => {
+  const isFullWidth = wrapperClassName.includes('w-full');
+
   const content = (
     <ElectricBorder
       color={color}
@@ -52,9 +56,10 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
       intensity={intensity}
       arcs={arcs}
       interactive={interactive}
-      className={`inline-flex ${wrapperClassName}`}
+      margin={margin}
+      className={`inline-flex items-center justify-center ${isFullWidth ? 'w-full' : ''}`}
     >
-      <span className={className}>
+      <span className={`inline-flex items-center justify-center ${isFullWidth ? 'w-full' : ''} ${className}`}>
         {children}
       </span>
     </ElectricBorder>
@@ -62,7 +67,11 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
 
   if (href && !disabled) {
     return (
-      <Link href={href} className="inline-block" onClick={onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}>
+      <Link
+        href={href}
+        className={`inline-block ${isFullWidth ? 'w-full' : ''} ${wrapperClassName}`}
+        onClick={onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}
+      >
         {content}
       </Link>
     );
@@ -73,7 +82,7 @@ export const ElectricButton: React.FC<ElectricButtonProps> = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className="inline-block p-0 border-0 bg-transparent text-inherit font-inherit cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+      className={`inline-block p-0 border-0 bg-transparent text-inherit font-inherit cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${isFullWidth ? 'w-full' : ''} ${wrapperClassName}`}
       {...rest}
     >
       {content}

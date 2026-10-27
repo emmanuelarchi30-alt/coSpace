@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { LogIn, Lock, Mail, AlertCircle, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
+import ElectricButton from '@/components/ui/ElectricButton';
 
 function LoginFormContent(): React.JSX.Element {
   const { t } = useI18n();
@@ -55,10 +56,10 @@ function LoginFormContent(): React.JSX.Element {
     await performLogin(email, password);
   };
 
-  const handleQuickLogin = async (userEmail: string, userPass: string): Promise<void> => {
+  const fillCredentials = (userEmail: string, userPass: string): void => {
     setEmail(userEmail);
     setPassword(userPass);
-    await performLogin(userEmail, userPass);
+    setError(null);
   };
 
   return (
@@ -126,10 +127,14 @@ function LoginFormContent(): React.JSX.Element {
         </div>
 
         <div className="mt-2">
-          <button
+          <ElectricButton
             type="submit"
             disabled={loading}
-            className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            color="#06b6d4"
+            borderRadius={12}
+            thickness={1.3}
+            wrapperClassName="w-full"
+            className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
@@ -142,32 +147,30 @@ function LoginFormContent(): React.JSX.Element {
                 <span>{t('auth.submitLogin', 'Ingresar a CoSpace')}</span>
               </>
             )}
-          </button>
+          </ElectricButton>
         </div>
       </form>
 
-      {/* Demo Credentials Quick Fill & Auto-Login */}
+      {/* Demo Credentials Quick Fill */}
       <div className="mt-6 pt-5 border-t border-white/10 text-center">
         <span className="text-[11px] uppercase tracking-wider text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
-          <KeyRound className="w-3 h-3 text-cyan-400" />
-          Acceso Rápido de Prueba (1-Clic):
+          <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
+          Credenciales de Prueba del Seed:
         </span>
-        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3">
           <button
             type="button"
-            disabled={loading}
-            onClick={() => handleQuickLogin('admin@cospace.com', 'AdminPassword123!')}
-            className="px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-semibold text-amber-300 transition-colors flex items-center justify-center gap-1"
+            onClick={() => fillCredentials('admin@cospace.com', 'AdminPassword123!')}
+            className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer hover:scale-105"
           >
-            <span>👑 Admin (admin@cospace.com)</span>
+            Admin (admin@cospace.com)
           </button>
           <button
             type="button"
-            disabled={loading}
-            onClick={() => handleQuickLogin('demo@cospace.com', 'UserPassword123!')}
-            className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-[11px] font-semibold text-cyan-300 transition-colors flex items-center justify-center gap-1"
+            onClick={() => fillCredentials('demo@cospace.com', 'UserPassword123!')}
+            className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-semibold text-xs shadow-md shadow-cyan-500/10 transition-all cursor-pointer hover:scale-105"
           >
-            <span>👤 Usuario (demo@cospace.com)</span>
+            Usuario (demo@cospace.com)
           </button>
         </div>
       </div>

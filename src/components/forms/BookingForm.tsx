@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { useAuthModal } from '@/lib/AuthModalContext';
 import { Calendar, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import ElectricButton from '@/components/ui/ElectricButton';
 
 interface BookingFormProps {
   spaceId: string;
@@ -216,12 +217,16 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           </span>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button con borde eléctrico animado */}
         <div className="mt-4">
-          <button
+          <ElectricButton
             type="submit"
             disabled={loading || success}
-            className="w-full liquid-glass-btn py-3.5 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            color="#06b6d4"
+            borderRadius={14}
+            thickness={1.3}
+            wrapperClassName="w-full"
+            className="w-full liquid-glass-btn py-3.5 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
@@ -234,7 +239,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
                 <span>{t('detail.confirmBooking')}</span>
               </>
             )}
-          </button>
+          </ElectricButton>
         </div>
       </form>
     </div>

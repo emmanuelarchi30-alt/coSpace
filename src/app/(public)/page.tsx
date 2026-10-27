@@ -8,6 +8,7 @@ import { useAuthModal } from '@/lib/AuthModalContext';
 import ParticleText from '@/components/ui/ParticleText';
 import FolderFloat from '@/components/ui/FolderFloat';
 import ElectricBorder from '@/components/ui/ElectricBorder';
+import ElectricButton from '@/components/ui/ElectricButton';
 import {
   ArrowRight,
   Sparkles,
@@ -81,25 +82,32 @@ export default function HomePage(): React.JSX.Element {
           {t('home.hero.subtitle', 'Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas con diseño Liquid Glass.')}
         </p>
 
-        {/* Botones de acción principales */}
+        {/* Botones de acción principales con borde eléctrico animado */}
         <div className="flex flex-wrap items-center justify-center gap-4 z-10 mb-12">
-          <Link
+          <ElectricButton
             href="/spaces"
-            className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group hover:scale-105 border border-cyan-400/40 hover:border-cyan-300 transition-all"
+            color="#06b6d4"
+            borderRadius={16}
+            thickness={1.5}
+            glow={0.8}
+            className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group hover:scale-105 border border-cyan-400/40 hover:border-cyan-300 transition-all cursor-pointer"
           >
             <span>{t('home.hero.explore', 'Explorar Catálogo de Espacios')}</span>
             <ArrowRight className="w-4 h-4 text-cyan-100 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <button
-            type="button"
+          </ElectricButton>
+          <ElectricButton
             onClick={openRegisterModal}
+            color="#8b5cf6"
+            borderRadius={16}
+            thickness={1.5}
+            glow={0.7}
             className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white hover:scale-105 border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/20 transition-all cursor-pointer"
           >
             {t('nav.register', 'Crear Cuenta Gratis')}
-          </button>
+          </ElectricButton>
         </div>
 
-        {/* Métricas y beneficios en tiempo real con borde eléctrico animado React Bits */}
+        {/* Métricas y beneficios en tiempo real con borde eléctrico animado */}
         <div className="w-full max-w-4xl my-6">
           <ElectricBorder
             color="#06b6d4"

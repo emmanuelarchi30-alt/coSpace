@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { UserPlus, User, Lock, Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import ElectricButton from '@/components/ui/ElectricButton';
 
 export default function RegisterPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -127,10 +128,14 @@ export default function RegisterPage(): React.JSX.Element {
         </div>
 
         <div className="mt-2">
-          <button
+          <ElectricButton
             type="submit"
             disabled={loading}
-            className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            color="#8b5cf6"
+            borderRadius={12}
+            thickness={1.3}
+            wrapperClassName="w-full"
+            className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
@@ -143,7 +148,7 @@ export default function RegisterPage(): React.JSX.Element {
                 <span>{t('auth.submitRegister', 'Registrarme')}</span>
               </>
             )}
-          </button>
+          </ElectricButton>
         </div>
       </form>
 
