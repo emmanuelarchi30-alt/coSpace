@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { LogIn, Lock, Mail, AlertCircle, Loader2, KeyRound, ArrowLeft } from 'lucide-react';
+import ElectricBorder from '@/components/ui/ElectricBorder';
 
 function LoginFormContent(): React.JSX.Element {
   const { t } = useI18n();
@@ -125,23 +126,33 @@ function LoginFormContent(): React.JSX.Element {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all mt-2"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Verificando credenciales...</span>
-            </>
-          ) : (
-            <>
-              <LogIn className="w-4 h-4" />
-              <span>{t('auth.submitLogin', 'Ingresar a CoSpace')}</span>
-            </>
-          )}
-        </button>
+        <div className="mt-2">
+          <ElectricBorder
+            color="#06b6d4"
+            borderRadius={12}
+            thickness={1.4}
+            glow={0.7}
+            className="w-full flex"
+          >
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Verificando credenciales...</span>
+                </>
+              ) : (
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>{t('auth.submitLogin', 'Ingresar a CoSpace')}</span>
+                </>
+              )}
+            </button>
+          </ElectricBorder>
+        </div>
       </form>
 
       {/* Demo Credentials Quick Fill & Auto-Login */}

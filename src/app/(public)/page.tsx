@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import ParticleText from '@/components/ui/ParticleText';
 import FolderFloat from '@/components/ui/FolderFloat';
+import ElectricButton from '@/components/ui/ElectricButton';
 import {
   ArrowRight,
   Sparkles,
@@ -78,21 +78,29 @@ export default function HomePage(): React.JSX.Element {
           {t('home.hero.subtitle', 'Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas con diseño Liquid Glass.')}
         </p>
 
-        {/* Botones de acción principales */}
+        {/* Botones de acción principales con animación de bordes eléctricos */}
         <div className="flex flex-wrap items-center justify-center gap-4 z-10 mb-12">
-          <Link
+          <ElectricButton
             href="/spaces"
+            color="#06b6d4"
+            borderRadius={16}
+            thickness={1.5}
+            glow={0.8}
             className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group"
           >
             <span>{t('home.hero.explore', 'Explorar Catálogo de Espacios')}</span>
             <ArrowRight className="w-4 h-4 text-cyan-100 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link
+          </ElectricButton>
+          <ElectricButton
             href="/register"
+            color="#8b5cf6"
+            borderRadius={16}
+            thickness={1.5}
+            glow={0.7}
             className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white"
           >
             {t('nav.register', 'Crear Cuenta Gratis')}
-          </Link>
+          </ElectricButton>
         </div>
 
         {/* Métricas y beneficios en tiempo real */}
@@ -209,9 +217,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-cyan-300">Desde $15.00/h</span>
-              <Link href="/spaces?type=DESK" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <ElectricButton href="/spaces?type=DESK" color="#06b6d4" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
                 Ver escritorios <ArrowRight className="w-3 h-3" />
-              </Link>
+              </ElectricButton>
             </div>
           </div>
 
@@ -233,9 +241,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-purple-300">Desde $40.00/h</span>
-              <Link href="/spaces?type=MEETING_ROOM" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <ElectricButton href="/spaces?type=MEETING_ROOM" color="#a855f7" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
                 Ver salas <ArrowRight className="w-3 h-3" />
-              </Link>
+              </ElectricButton>
             </div>
           </div>
 
@@ -257,9 +265,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-amber-300">Desde $22.00/h</span>
-              <Link href="/spaces?type=CABIN" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <ElectricButton href="/spaces?type=CABIN" color="#f59e0b" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
                 Ver cabinas <ArrowRight className="w-3 h-3" />
-              </Link>
+              </ElectricButton>
             </div>
           </div>
         </div>

@@ -216,6 +216,8 @@ cospace/
 │   ├── components/
 │   │   ├── ui/
 │   │   │   ├── Ferrofluid.tsx    # Fondo interactivo de fluido magnético con física en WebGL2
+│   │   │   ├── ElectricBorder.tsx # Borde eléctrico animado con arcos y pulsos en WebGL2
+│   │   │   ├── ElectricButton.tsx # Botón interactivo con contorno eléctrico reactivo
 │   │   │   ├── ParticleText.tsx  # Título interactivo con física de partículas en Canvas
 │   │   │   ├── FolderFloat.tsx   # Fichero interactivo con física 2D en Matter.js
 │   │   │   ├── ClientLocalClock.tsx # Componente de hidratación segura con hora local

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { UserPlus, User, Lock, Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import ElectricBorder from '@/components/ui/ElectricBorder';
 
 export default function RegisterPage(): React.JSX.Element {
   const { t } = useI18n();
@@ -126,23 +127,33 @@ export default function RegisterPage(): React.JSX.Element {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all mt-2"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Creando cuenta...</span>
-            </>
-          ) : (
-            <>
-              <UserPlus className="w-4 h-4" />
-              <span>{t('auth.submitRegister', 'Registrarme')}</span>
-            </>
-          )}
-        </button>
+        <div className="mt-2">
+          <ElectricBorder
+            color="#8b5cf6"
+            borderRadius={12}
+            thickness={1.4}
+            glow={0.7}
+            className="w-full flex"
+          >
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full liquid-glass-btn py-3 rounded-xl font-bold text-white text-sm shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Creando cuenta...</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  <span>{t('auth.submitRegister', 'Registrarme')}</span>
+                </>
+              )}
+            </button>
+          </ElectricBorder>
+        </div>
       </form>
 
       <div className="mt-6 text-center text-xs text-slate-400">
