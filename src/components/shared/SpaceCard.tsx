@@ -58,7 +58,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           priority={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent" />
 
         {/* Type Badge */}
         <div className="absolute top-3 left-3">
@@ -88,7 +88,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
               {capacity} {t('catalog.capacity')}
             </span>
             {location && (
-              <span className="flex items-center gap-1 truncate max-w-[150px]">
+              <span className="flex items-center gap-1 truncate max-w-37.5">
                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
                 {location}
               </span>
