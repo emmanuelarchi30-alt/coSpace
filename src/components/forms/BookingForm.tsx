@@ -138,7 +138,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
         {/* Start Hour Selector */}
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
+          <label className="text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
             <span>{t('detail.startTime')}</span>
             <span className="text-[11px] text-cyan-400">Rango 7:00 a 21:00</span>
           </label>
@@ -163,7 +163,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
         {/* Duration Selector */}
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
+          <label className="text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
             <span>{t('detail.hours')}</span>
             <span className="text-[11px] text-slate-400">1 a 4 horas completas</span>
           </label>

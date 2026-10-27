@@ -319,7 +319,7 @@ export default function DashboardPage(): React.JSX.Element {
                           >
                             {isCancelled ? t('dashboard.status.cancelled') : t('dashboard.status.completed')}
                           </span>
-                          <span className="font-bold text-white truncate max-w-[180px]">
+                          <span className="font-bold text-white truncate max-w-45">
                             {item.space.name}
                           </span>
                         </div>

@@ -146,7 +146,7 @@ function LoginFormContent(): React.JSX.Element {
 
       {/* Demo Credentials Quick Fill & Auto-Login */}
       <div className="mt-6 pt-5 border-t border-white/10 text-center">
-        <span className="text-[11px] uppercase tracking-wider text-slate-400 font-mono block mb-2 flex items-center justify-center gap-1.5">
+        <span className="text-[11px] uppercase tracking-wider text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
           <KeyRound className="w-3 h-3 text-cyan-400" />
           Acceso Rápido de Prueba (1-Clic):
         </span>

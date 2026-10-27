@@ -15,10 +15,10 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-md">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-tr from-cyan-500 to-violet-600 flex items-center justify-center shadow-md">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
                 CoSpace
               </span>
             </div>
