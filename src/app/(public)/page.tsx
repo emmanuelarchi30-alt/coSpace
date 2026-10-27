@@ -25,12 +25,12 @@ import {
 } from 'lucide-react';
 
 const FOLDER_ITEMS = [
-  { label: '👥 Salas de Reunión 4K', value: '/spaces?type=MEETING_ROOM' },
-  { label: '🎧 Cabinas Insonorizadas', value: '/spaces?type=CABIN' },
-  { label: '🖥️ Escritorios Ergonómicos', value: '/spaces?type=DESK' },
-  { label: '⚡ Reservas de 1 a 4 Horas', value: '/spaces' },
-  { label: '🕒 Horario 7:00 a 21:00', value: '/spaces' },
-  { label: '📋 Mis Reservas Activas', value: '/dashboard' },
+  { label: 'Salas de Reunión 4K', value: '/spaces?type=MEETING_ROOM' },
+  { label: 'Cabinas Insonorizadas', value: '/spaces?type=CABIN' },
+  { label: 'Escritorios Ergonómicos', value: '/spaces?type=DESK' },
+  { label: 'Reservas de 1 a 4 Horas', value: '/spaces' },
+  { label: 'Horario 7:00 a 21:00', value: '/spaces' },
+  { label: 'Mis Reservas Activas', value: '/dashboard' },
 ];
 
 export default function HomePage(): React.JSX.Element {

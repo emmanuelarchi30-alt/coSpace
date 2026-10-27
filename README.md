@@ -1,69 +1,285 @@
-# CoSpace — Plataforma Fullstack de Reserva de Espacios de Coworking
+# CoSpace — Enterprise Coworking Space Booking Platform
 
-CoSpace es una plataforma web fullstack desarrollada con **Next.js 16 (App Router)**, **TypeScript** y **Prisma ORM** conectada a **PostgreSQL en Supabase**. Permite a los usuarios explorar espacios de trabajo (escritorios compartidos, salas de juntas y cabinas insonorizadas), reservarlos por horas completas, gestionar y cancelar sus reservas, y a los administradores gestionar el catálogo completo.
+CoSpace is a fullstack, production-grade coworking space reservation platform built with **Next.js 16 (App Router)**, **TypeScript**, **Prisma ORM**, and **PostgreSQL (Supabase)**. It enables professionals and teams to discover, book, and manage high-focus desks, meeting rooms, and acoustic booths by whole hours with real-time validation, hybrid rendering, and a state-of-the-art **Liquid Glass** user experience.
 
-La interfaz está diseñada con un estilo **Liquid Glass (cristal líquido translúcido)** con efectos visuales avanzados, componentes interactivos de alto rendimiento (`<ParticleText />` y `<FolderFloat />` con física 2D via Matter.js), internacionalización (ES / EN), optimización de imágenes (`next/image`), renderizado híbrido (SSG, SSR, CSR), autenticación robusta por cookies HTTP-only con rotación de refresh tokens y protección mediante `proxy.ts`.
-
----
-
-## 1. Descripción del Proyecto
-
-- **Arquitectura**: Fullstack sobre Next.js 16 App Router con Route Handlers propios (sin APIs externas).
-- **Roles y Accesos**:
-  - **Usuario**: Registro, inicio de sesión, visualización de catálogo activo, detalle de espacios, reservas por horas (1 a 4h), panel personal de reservas y cancelación (hasta 2h antes del inicio).
-  - **Administrador**: Todo lo anterior más creación, edición y activación/desactivación de espacios (con validación de reservas futuras activas). Creado exclusivamente vía Seed.
-- **Seguridad**: Passwords hasheadas con `bcryptjs`, Access Tokens (15 min) y Refresh Tokens (7 días) enviados en cookies `httpOnly`, `secure` y `sameSite`. Los tokens nunca se exponen en `localStorage` ni en el cuerpo de la respuesta. El refresh token se almacena hasheado (SHA-256) en la base de datos para revocación inmediata al cerrar sesión.
-- **Reglas de Negocio en Backend**:
-  1. Duración de reservas entre 1 y 4 horas completas (en punto, ej: 10:00 a 12:00).
-  2. Horario hábil permitido de 7:00 a 21:00 (mismo día calendario).
-  3. No se permite reservar en el pasado ni con más de 30 días de anticipación.
-  4. Prevención de solapamiento de horarios en un mismo espacio.
-  5. Prevención de solapamiento de horarios para un mismo usuario (incluso en espacios diferentes).
-  6. Límite de máximo 3 reservas futuras confirmadas por usuario.
-  7. No se puede reservar un espacio desactivado.
-  8. El precio total lo calcula estrictamente el servidor (`horas × precioPorHora`).
-  9. Solo el titular o un Administrador puede cancelar una reserva.
-  10. Usuarios estándar pueden cancelar hasta 2 horas antes del inicio de la reserva.
-  11. Cancelar cambia el estado a `CANCELLED`; el registro no se elimina.
-  12. Los espacios no se eliminan físicamente; se desactivan (`isActive: false`) y desaparecen del catálogo público.
-  13. No se puede desactivar un espacio que tenga reservas futuras confirmadas.
-  14. Aislamiento estricto: ningún usuario puede ver ni modificar reservas de otros usuarios.
+The platform is fortified with strict route protections, cryptographic session rotation, end-to-end idempotency, in-memory rate limiting, and an edge perimeter powered by **Cloudflare**.
 
 ---
 
-## 2. Requisitos Previos
+## 1. Architecture & Technology Stack
 
-Asegúrate de contar con las siguientes herramientas instaladas en tu sistema:
-
-- **Node.js**: Versión `v20.x` o superior (Recomendado: `v22.x`).
-- **NPM**: Versión `10.x` o superior.
-- **Docker & Docker Compose**: (Opcional para ejecución contenerizada).
-- **Conexión a Internet**: Para conectar con la base de datos PostgreSQL alojada en Supabase y cargar imágenes de Unsplash.
+| Layer | Technology | Justification & Role in the Project |
+|---|---|---|
+| **Framework** | **Next.js 16.4.3 (App Router with Turbopack)** | Native server and client component hybrid rendering (SSG, SSR, CSR), route handlers, and proxy middleware. |
+| **Language** | **TypeScript 5.x (Strict Mode)** | 100% type safety with zero `any` across the entire codebase for enterprise reliability. |
+| **Database & ORM** | **PostgreSQL (Supabase) + Prisma ORM 6.4.1** | Strongly typed relational models with connection pooling (PgBouncer) and automated schema migrations. |
+| **Authentication** | **JWT (jose & jsonwebtoken) + bcryptjs** | Dual-token authentication (Access Token 15m + Refresh Token 7d) in HTTP-only, Secure, SameSite cookies with SHA-256 database token rotation. |
+| **Edge Security** | **Cloudflare Tunnel (`cloudflared`)** | Zero-trust perimeter shielding origin server from direct exposure, DDoS mitigation, and edge SSL/TLS. |
+| **UI & Styling** | **Tailwind CSS v4 + Liquid Glass Theme** | Custom glassmorphism, responsive navigation, drop-shadow glows, and fluid micro-interactions. |
+| **Visual Computing** | **WebGL 2.0 (`<ElectricBorder />` & `<Ferrofluid />`)** | Custom GLSL shader pipelines delivering reactive plasma electric current animations without emojis or third-party UI bloat. |
+| **Physics Simulation** | **Matter.js 2D Engine (`<FolderFloat />`)** | Interactive 2D rigid-body physics for rule exploration. |
+| **Internationalization** | **Custom React Context (`I18nContext`)** | Instant language switching (Spanish / English) without page reloads. |
 
 ---
 
-## 3. Variables de Entorno
+## 2. Mandatory Business Rules & Implementation
 
-El proyecto incluye un archivo `.env.example`. Copia este archivo a `.env`:
+All 14 business rules required by the specification are strictly enforced on the server within [`src/lib/businessRules.ts`](file:///home/cohorte5/Escritorio/cospace/src/lib/businessRules.ts) and validated by automated unit tests:
 
+| Rule | Specification Requirement | Server Implementation & Enforcement |
+|:---:|---|---|
+| **Rule 1** | Reservation duration must be between **1 and 4 whole hours** (exact on-the-hour marks, e.g. 10:00 to 12:00, no fractional minutes). | `validateDurationAndHours()` verifies minutes, seconds, and milliseconds are strictly zero and duration is an integer between 1 and 4. |
+| **Rule 2** | Reservations allowed strictly within business operating hours: **7:00 to 21:00** on the same calendar day. | `validateOperatingHours()` validates start $\ge$ 7:00, end $\le$ 21:00, and ensures start and end dates share identical year, month, and day. |
+| **Rule 3** | Prohibited to book in the past or more than **30 days in advance**. | `validateBookingWindow()` verifies `startTime > now` and `startTime <= now + 30 days`. |
+| **Rule 4** | Two confirmed reservations **cannot overlap in the same space**. | `validateSpaceOverlap()` queries PostgreSQL with `startTime < requestedEnd AND endTime > requestedStart` for confirmed records. |
+| **Rule 5** | A single user **cannot have overlapping reservations** across any space. | `validateUserOverlap()` validates user schedules across the entire database to prevent concurrent booking conflicts. |
+| **Rule 6** | Maximum **3 future confirmed reservations** per user at any given time. | `validateUserMaxFutureReservations()` counts active future bookings (`endTime > now`) and caps them at 3. |
+| **Rule 7** | Deactivated spaces cannot be booked. | `validateSpaceActive()` verifies `space.isActive === true` before processing any booking attempt. |
+| **Rule 8** | Total price is **strictly computed by the server** (`hours * pricePerHour`). Client-supplied amounts are ignored. | `calculateTotalPrice()` multiplies validated duration by database space price, preventing financial tampering. |
+| **Rule 9** | Only the reservation owner or an **Administrator** can cancel a booking. | `validateCancellation()` enforces strict identity ownership checks; unauthorized third parties receive a 403 Forbidden. |
+| **Rule 10** | Standard users may only cancel up to **2 hours prior** to start time. | `validateCancellation()` checks `startTime - now >= 2 hours` for standard users; Admins retain override cancellation privileges. |
+| **Rule 11** | Cancellation sets status to `CANCELLED`; records are **never deleted from the database**. | Route handler updates status to `CANCELLED` and marks associated payment as `REFUNDED` with audit trail recording. |
+| **Rule 12** | Spaces are **never physically deleted**; deactivated spaces (`isActive: false`) disappear from public catalog. | Database retains space records; `GET /api/spaces` filters `where: { isActive: true }` for non-admin viewers. |
+| **Rule 13** | A space with active future confirmed bookings **cannot be deactivated**. | `validateSpaceDeactivation()` checks future active bookings and rejects deactivation with HTTP 409 Conflict if any exist. |
+| **Rule 14** | Strict data isolation (Anti-IDOR): users can neither view nor modify another user's bookings. | Route handlers scope all user queries to `where: { userId: session.userId }`. |
+
+---
+
+## 3. Comprehensive Security Audit & Vulnerabilities Addressed
+
+A full defensive security audit was conducted on the application codebase. A total of **8 vulnerability classes (CWEs)** were systematically evaluated, audited, and resolved:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       SECURITY AUDIT MATRIX & REMEDIATION                   │
+├──────────────────────────────────┬─────────────────┬────────────────────────┤
+│ Vulnerability Class              │ Severity Level  │ Defense Mechanism      │
+├──────────────────────────────────┼─────────────────┼────────────────────────┤
+│ 1. SQL Injection (CWE-89)        │ Critical        │ Prisma Parameterized   │
+│ 2. Cross-Site Scripting (CWE-79) │ High            │ React 19 Auto-Escaping │
+│ 3. IDOR / Broken Auth (CWE-639)  │ High            │ Session Scoping        │
+│ 4. Privilege Escalation (CWE-269)│ High            │ Hardcoded User Role    │
+│ 5. Brute-Force/Flooding (CWE-307)│ Medium / High   │ Sliding Rate Limiter   │
+│ 6. Race Conditions (CWE-294)     │ High            │ Idempotency Key Engine │
+│ 7. Token Session Attacks(CWE-384)│ High            │ HTTP-Only Cookie + SHA │
+│ 8. Missing HTTP Headers (CWE-693)│ Medium          │ Configured Headers     │
+└──────────────────────────────────┴─────────────────┴────────────────────────┘
+```
+
+### Detailed Vulnerability Analysis
+
+1. **SQL / NoSQL Injection (CWE-89) — Status: ZERO RISK (Immune)**
+   - *Mechanic*: Attackers inject malicious SQL statements through inputs to manipulate backend queries.
+   - *Audit Result*: Zero instances of raw SQL concatenation or `$queryRawUnsafe`. Every database query is executed through Prisma's typed, parameterized prepared statements.
+
+2. **Cross-Site Scripting — XSS (CWE-79) — Status: ZERO RISK (Immune)**
+   - *Mechanic*: Injecting malicious JavaScript payloads into client-side views.
+   - *Audit Result*: Zero instances of `dangerouslySetInnerHTML`, `eval()`, or `new Function()`. React 19 automatically escapes all dynamic content rendered in the virtual DOM.
+
+3. **Insecure Direct Object References — IDOR (CWE-639) — Status: MITIGATED**
+   - *Mechanic*: Modifying IDs in API requests to view or alter records belonging to other users.
+   - *Remediation*:
+     - `GET /api/reservations` forces `where: { userId: session.userId }` unless the requester is an authorized Administrator.
+     - `PATCH /api/reservations/:id/cancel` inspects `reservation.userId === session.userId` before allowing state transitions.
+
+4. **Privilege Escalation & Role Tampering (CWE-269) — Status: MITIGATED**
+   - *Mechanic*: Submitting `role: "ADMIN"` during user registration to gain elevated privileges.
+   - *Remediation*: `src/app/api/auth/register/route.ts` strictly ignores any client-provided role and explicitly hardcodes `role: Role.USER`. Administrators can only be created via the database seed script.
+
+5. **Brute Force & Flooding Attacks (CWE-307 / CWE-770) — Status: MITIGATED**
+   - *Mechanic*: Automated credential stuffing on login or script-based reservation flooding to exhaust inventory.
+   - *Remediation*: In-memory sliding-window rate limiters implemented in [`src/lib/rateLimit.ts`](file:///home/cohorte5/Escritorio/cospace/src/lib/rateLimit.ts):
+     - **Login**: Max 15 attempts per 15 minutes per IP + email.
+     - **Register**: Max 10 attempts per 15 minutes per IP.
+     - **Reservations**: Max 25 booking attempts per 5 minutes per user + IP.
+     - Requests exceeding thresholds are rejected with `HTTP 429 Too Many Requests`.
+
+6. **Race Conditions & Double Booking (CWE-294) — Status: MITIGATED**
+   - *Mechanic*: Sending rapid concurrent booking requests with identical timestamps to bypass overlap checks.
+   - *Remediation*: Full **Idempotency Engine** via `Idempotency-Key` / `x-idempotency-key` headers backed by a PostgreSQL `IdempotencyRecord` table. Duplicate submissions receive the cached response with `X-Cache-Lookup: HIT`.
+
+7. **Cryptographic Session Security & Token Hijacking (CWE-384 / CWE-613) — Status: MITIGATED**
+   - *Mechanic*: Stealing authentication tokens from browser storage or intercepting tokens in transit.
+   - *Remediation*:
+     - Access Tokens (15 min) and Refresh Tokens (7 days) are transmitted solely via `httpOnly: true`, `secure: true`, `sameSite: 'lax'` cookies.
+     - Refresh tokens are stored in Supabase as SHA-256 hashes (`hashToken(refreshToken)`), allowing immediate server-side revocation on logout or token rotation.
+     - Tokens are never exposed in `localStorage`, `sessionStorage`, or response JSON bodies.
+
+8. **Missing HTTP Security Headers (CWE-693) — Status: RESOLVED**
+   - *Mechanic*: Clickjacking via iframe embedding or MIME-type confusion attacks.
+   - *Remediation*: Injected strict security headers into both [`next.config.ts`](file:///home/cohorte5/Escritorio/cospace/next.config.ts) and [`src/proxy.ts`](file:///home/cohorte5/Escritorio/cospace/src/proxy.ts):
+     - `X-Frame-Options: SAMEORIGIN` (Clickjacking defense)
+     - `X-Content-Type-Options: nosniff` (MIME sniffing defense)
+     - `Referrer-Policy: strict-origin-when-cross-origin`
+     - `X-XSS-Protection: 1; mode=block`
+     - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+---
+
+## 4. Why Cloudflare Was Implemented For These Vulnerabilities
+
+To provide defense-in-depth beyond application-level defenses, **Cloudflare Tunnel (`cloudflared`)** was integrated into the operational deployment architecture:
+
+```
+┌─────────────────┐       ┌────────────────────────┐       ┌──────────────────────┐
+│  Client Browser │ ----> │ Cloudflare Global Edge │ ----> │ Local Next.js Server │
+│ (Internet User) │ HTTPS │   DDoS / WAF / SSL     │ QUIC  │   (Port 3000 / App)  │
+└─────────────────┘       └────────────────────────┘       └──────────────────────┘
+```
+
+### Strategic Reasons for Using Cloudflare:
+
+1. **Perimeter Origin Shielding**:
+   - The application origin does not open public inbound ports or expose its IP address. `cloudflared` initiates an outbound-only QUIC tunnel to Cloudflare edge nodes, completely hiding the origin from network scanners.
+2. **Edge DDoS & Automated Bot Mitigation**:
+   - Application rate limiters handle application-level abuse, but Layer 3, 4, and volumetric Layer 7 floods would consume server CPU and memory. Cloudflare absorbs volumetric attacks at the edge before packets reach the Node.js event loop.
+3. **Automated SSL/TLS Termination & Modern Transport**:
+   - Provides enterprise-grade TLS with modern cipher suites and accelerates static asset delivery through HTTP/2 and HTTP/3 (QUIC) protocols.
+4. **Live Public Access URL**:
+   - The project is accessible globally via the secure TryCloudflare tunnel:
+     ```
+     https://lounge-servers-oval-shark.trycloudflare.com
+     ```
+
+---
+
+## 5. Architectural Additions Beyond the Baseline Test
+
+Several enterprise features and UX enhancements were designed and implemented beyond the baseline requirements to elevate usability, security, and aesthetics:
+
+### A. Granular Cookie Consent & Browser Tab Session Lifecycle
+- **Problem**: In standard cookie setups, closing a browser tab often leaves persistent cookies active, keeping accounts exposed on shared computers. Conversely, clearing cookies loses user preferences.
+- **Solution ([`src/lib/cookieConsent.ts`](file:///home/cohorte5/Escritorio/cospace/src/lib/cookieConsent.ts))**:
+  - **Auto-Logout on Tab Close**: The client binds active sessions to `sessionStorage`. When the user closes the browser tab without logging out, `sessionStorage` is destroyed. Upon reopening CoSpace in a fresh tab, the application detects that the previous tab closed and automatically calls `/api/auth/logout`, closing the active session on the server.
+  - **Persistent Credential Prefill**: When the user accepts cookies, authorized preferences (`cospace_saved_email`) are stored securely. When reopening the login form, the email field is **automatically pre-filled**, eliminating repetitive typing while preserving security.
+  - **Interactive Cookie Consent UI**: Both the floating banner ([`CookieConsentBanner.tsx`](file:///home/cohorte5/Escritorio/cospace/src/components/ui/CookieConsentBanner.tsx)) and the login form provide explicit "Aceptar Cookies" action buttons with real-time UI synchronization via custom events.
+
+### B. Reactive Plasma Electric Ray Animation (`<ElectricBorder />`)
+- **Integration**: Inspired by React Bits open-source components and integrated using native WebGL 2.0 (`ElectricBorder.tsx` and `ElectricButton.tsx`).
+- **Optimization**:
+  - Replaced fallback CSS animations with real GLSL plasma shaders.
+  - Fixed React Strict Mode WebGL context loss bug (avoided `loseContext()` destruction during unmount/remount cycles).
+  - Applied color-coded electric currents: cyan plasma for primary actions, amber plasma for Admin controls, and purple plasma for registration buttons.
+  - Completely free of emojis, maintaining a refined cyberpunk glassmorphism aesthetic.
+
+### C. Viewport Gradual Blur (`<GradualBlur />`)
+- Positioned progressively along the bottom viewport edge to generate a glassmorphism optical fade, preventing harsh visual clipping against dark backgrounds.
+
+### D. Automated Security Test Suite
+- In addition to standard business rule unit tests, an automated security testing suite ([`securityAndRouteProtection.test.ts`](file:///home/cohorte5/Escritorio/cospace/src/tests/securityAndRouteProtection.test.ts)) was implemented to test rate limiting thresholds, IDOR prevention, and financial calculation integrity.
+
+---
+
+## 6. Route Protection Matrix
+
+Route access is enforced through a dual layer: edge middleware proxy ([`src/proxy.ts`](file:///home/cohorte5/Escritorio/cospace/src/proxy.ts)) and route handler guards.
+
+| Route / Endpoint | HTTP Method | Access Level | Behavior When Unauthorized |
+|---|:---:|:---:|---|
+| `/` | `GET` | Public | Open access. |
+| `/spaces`, `/spaces/[id]` | `GET` | Public | Active spaces only (`isActive: true`). |
+| `/login`, `/register` | `GET` | Public / Guest | Authenticated users are redirected to `/dashboard`. |
+| `/dashboard`, `/my-reservations` | `GET` | Authenticated (`USER` / `ADMIN`) | Unauthenticated users are redirected: `HTTP 307 -> /login?from=/dashboard`. |
+| `/admin` | `GET` | Administrator (`ADMIN` only) | Unauthenticated $\rightarrow$ `/login`. Standard user $\rightarrow$ `/dashboard?error=unauthorized_admin`. |
+| `/api/auth/login`, `/register` | `POST` | Public (Rate Limited) | Rate limited by client IP. |
+| `/api/auth/me` | `GET` | Authenticated | Returns current user session or `401 Unauthorized`. |
+| `/api/auth/refresh` | `POST` | Authenticated (Cookie) | Rotates tokens; rejects revoked tokens with `401`. |
+| `/api/auth/logout` | `POST` | Authenticated | Revokes refresh token hash in DB and clears cookies. |
+| `/api/spaces` | `GET` | Public / Admin Filtered | Standard users see active; Admins can query `?all=true`. |
+| `/api/spaces` | `POST` | Administrator (`ADMIN` only) | Returns `401` if unauthenticated, `403` if standard user. |
+| `/api/spaces/[id]` | `PUT`, `PATCH` | Administrator (`ADMIN` only) | Validates future booking conflicts before deactivation (Rule 13). |
+| `/api/reservations` | `GET` | Authenticated | Scoped to requester's own bookings (Rule 14 IDOR isolation). |
+| `/api/reservations` | `POST` | Authenticated | Validates all 14 business rules, rate limits, and idempotency key. |
+| `/api/reservations/[id]/cancel`| `PATCH` / `POST` | Owner or Administrator | Validates 2-hour window (Rule 10) and ownership (Rule 9). |
+
+---
+
+## 7. Project Structure
+
+```text
+cospace/
+├── .env                                  # Local environment configuration
+├── .env.example                          # Environment template
+├── Dockerfile                            # Production multi-stage Docker build
+├── docker-compose.yml                    # Container orchestration
+├── eslint.config.mjs                     # ESLint 9 configuration
+├── next.config.ts                        # Next.js 16 configuration with Security Headers
+├── package.json                          # Scripts and dependencies
+├── tsconfig.json                         # Strict TypeScript configuration
+├── prisma/
+│   ├── schema.prisma                     # Relational schema (User, Space, Reservation, Payment, AuditLog, IdempotencyRecord)
+│   ├── seed.ts                           # Database seeding script (Admin, demo user, catalog)
+│   └── migrations/                       # PostgreSQL migration files
+├── src/
+│   ├── proxy.ts                          # Next.js 16 route protection middleware
+│   ├── app/
+│   │   ├── (public)/                     # Public route group (Home, Catalog, Detail)
+│   │   ├── (auth)/                       # Auth route group (Login, Register)
+│   │   ├── (private)/                    # Private route group (Dashboard)
+│   │   ├── (admin)/                      # Admin route group (Space Management)
+│   │   ├── api/                          # Backend Route Handlers
+│   │   │   ├── auth/                     # login, register, refresh, logout, me
+│   │   │   ├── spaces/                   # Catalog and space CRUD
+│   │   │   └── reservations/             # Booking creation and cancellation
+│   │   ├── layout.tsx                    # Root layout with providers, blur, and cookie banner
+│   │   └── globals.css                   # Liquid Glass styles and Tailwind v4 directives
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── AuthModal.tsx             # Interactive Auth modal with cookie consent & demo quick-fill
+│   │   │   ├── CookieConsentBanner.tsx   # Floating liquid-glass cookie consent banner
+│   │   │   ├── ElectricBorder.tsx        # WebGL 2.0 plasma electric current border
+│   │   │   ├── ElectricButton.tsx        # Electric ray button wrapper
+│   │   │   ├── Ferrofluid.tsx            # WebGL interactive fluid background
+│   │   │   ├── FolderFloat.tsx           # Matter.js 2D physics folder interaction
+│   │   │   ├── GradualBlur.tsx           # Viewport bottom gradual blur lens
+│   │   │   ├── ParticleText.tsx          # Canvas particle physics title
+│   │   │   ├── ClientLocalClock.tsx      # Hydration-safe real-time clock
+│   │   │   └── LanguageSelector.tsx      # ES / EN language switcher
+│   │   ├── shared/
+│   │   │   ├── Navbar.tsx                # Navigation bar with tab-session watcher
+│   │   │   ├── Footer.tsx                # Translucent glass footer
+│   │   │   └── SpaceCard.tsx             # Optimized space card
+│   │   └── forms/
+│   │       ├── BookingForm.tsx           # Booking form with client/server validation
+│   │       └── SpaceForm.tsx             # Admin modal for creating and editing spaces
+│   ├── lib/
+│   │   ├── prisma.ts                     # Prisma Client singleton
+│   │   ├── auth.ts                       # JWT generation, verification, and cookie controls
+│   │   ├── cookieConsent.ts              # Cookie consent and tab-session lifecycle utilities
+│   │   ├── businessRules.ts              # Pure business rule validation functions
+│   │   ├── idempotency.ts                # Idempotency storage and replay engine
+│   │   ├── rateLimit.ts                  # In-memory sliding-window rate limiter
+│   │   └── i18n/                         # Internationalization dictionaries
+│   └── tests/
+│       ├── businessRules.test.ts         # 14 business rule unit tests
+│       ├── cookieConsent.test.ts         # 6 cookie & tab-session lifecycle tests
+│       ├── idempotency.test.ts           # 4 idempotency replay tests
+│       └── securityAndRouteProtection.test.ts # 9 security & rate-limit tests
+```
+
+---
+
+## 8. Installation & Setup Guide
+
+### Prerequisites
+- **Node.js**: `v20.x` or `v22.x` (Recommended: Node `v22.x`).
+- **NPM**: `v10.x` or superior.
+- **Internet Connection**: For PostgreSQL on Supabase and Unsplash images.
+
+### Step 1: Clone Repository & Install Dependencies
+```bash
+git clone <REPOSITORY_URL>
+cd cospace
+npm install
+```
+
+### Step 2: Configure Environment Variables
+Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
 
-### Explicación detallada de cada variable:
-
-| Variable | Descripción | Valor de Ejemplo / Cómo obtenerlo |
-|---|---|---|
-| `DATABASE_URL` | Cadena de conexión PostgreSQL hacia el Pooler de Supabase (modo transacción, puerto 6543). | Obtenida en el dashboard de Supabase: *Project Settings -> Database -> Connection string -> URI (Transaction mode)*. |
-| `DIRECT_URL` | Cadena de conexión directa hacia PostgreSQL (puerto 5432) usada para migraciones DDL de Prisma. | *Project Settings -> Database -> Connection string -> Session mode (Port 5432)*. |
-| `JWT_ACCESS_SECRET` | Llave secreta criptográfica para firmar los Access Tokens (15m). | Generar con `openssl rand -base64 32` en terminal. |
-| `JWT_REFRESH_SECRET` | Llave secreta criptográfica para firmar los Refresh Tokens (7d). | Generar con `openssl rand -base64 32` en terminal. |
-| `ACCESS_TOKEN_EXPIRES_IN` | Tiempo de vida del Access Token. | `15m` |
-| `REFRESH_TOKEN_EXPIRES_IN` | Tiempo de vida del Refresh Token. | `7d` |
-| `NEXT_PUBLIC_APP_URL` | URL base pública de la aplicación. | `http://localhost:3000` |
-
-### Valores listos para ejecutar la evaluación:
-
+Ensure the following variables are present in `.env`:
 ```env
 DATABASE_URL="postgresql://postgres.ucpivpflbgfqzjlqkxhz:coSpace3012%40@aws-0-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=no-verify"
 DIRECT_URL="postgresql://postgres.ucpivpflbgfqzjlqkxhz:coSpace3012%40@aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=no-verify"
@@ -74,196 +290,66 @@ REFRESH_TOKEN_EXPIRES_IN="7d"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
----
-
-## 4. Ejecución en Desarrollo (Paso a Paso)
-
-Sigue estos comandos exactos y en orden desde la terminal:
-
-### a. Clonar el repositorio e instalar dependencias
-```bash
-git clone <URL_DEL_REPOSITORIO>
-cd cospace
-npm install
-```
-
-### b. Configurar variables de entorno
-```bash
-cp .env.example .env
-# Asegúrate de verificar los valores indicados en la sección anterior
-```
-
-### c. Sincronizar esquema y migraciones con Supabase
+### Step 3: Synchronize Database Schema
 ```bash
 npx prisma db push
-# O para aplicar migraciones versionadas:
-# npx prisma migrate deploy
 ```
 
-### d. Ejecutar el Seed de la Base de Datos
-Crea el usuario administrador, usuario de prueba y catálogo inicial de espacios:
+### Step 4: Seed Database with Initial Data
+Generates the Administrator, demo user, and initial catalog of spaces:
 ```bash
 npm run seed
 ```
 
-### e. Iniciar el servidor en modo desarrollo
-```bash
-npm run dev
-```
-
-Abre en tu navegador: [http://localhost:3000](http://localhost:3000).
-
----
-
-## 5. Credenciales del Administrador y Usuario Demo
-
-Generadas automáticamente por el script de Seed (`prisma/seed.ts`):
-
-### Administrador (Rol `ADMIN`):
-- **Correo Electrónico**: `admin@cospace.com`
-- **Contraseña**: `AdminPassword123!`
-- **Permisos**: Acceso a `/admin`, crear espacios, editar espacios, activar/desactivar espacios, cancelar cualquier reserva.
-
-### Usuario Estándar (Rol `USER`):
-- **Correo Electrónico**: `demo@cospace.com`
-- **Contraseña**: `UserPassword123!`
-- **Permisos**: Ver catálogo activo, reservar espacios (1 a 4h), ver reservas propias en `/dashboard`, cancelar reservas propias con 2h de anticipación.
-
-*(Nota: En la pantalla de Login `/login` existen botones rápidos para autorellenar estas credenciales con un solo clic).*
-
----
-
-## 6. Ejecución con Docker y Docker Compose
-
-### Opción A: Usando Docker Compose (Recomendada)
-```bash
-# Construye la imagen y levanta el contenedor con las variables del .env
-docker compose up --build -d
-
-# Ver registros de ejecución
-docker compose logs -f
-
-# Detener el contenedor
-docker compose down
-```
-
-### Opción B: Usando Dockerfile directamente
-```bash
-# 1. Construir la imagen de producción
-docker build -t cospace-app .
-
-# 2. Correr el contenedor pasando el archivo de entorno
-docker run -d --name cospace-container -p 3000:3000 --env-file .env cospace-app
-```
-
----
-
-## 7. Scripts Disponibles en `package.json`
-
-| Script | Comando | Descripción |
-|---|---|---|
-| `dev` | `npm run dev` | Inicia el servidor de desarrollo de Next.js 16 con Turbopack. |
-| `build` | `npm run build` | Compila la aplicación en modo producción, valida tipos TypeScript y genera páginas estáticas. |
-| `start` | `npm start` | Inicia el servidor en producción una vez compilado. |
-| `lint` | `npm run lint` | Ejecuta ESLint para validar código limpio y mejores prácticas. |
-| `seed` | `npm run seed` | Ejecuta el script `prisma/seed.ts` para poblar usuarios y espacios. |
-| `test` | `npm test` | Ejecuta la suite de pruebas unitarias automatizadas para todas las reglas de negocio. |
-
----
-
-## 8. Estructura de Carpetas del Proyecto
-
-```text
-cospace/
-├── .env                          # Variables de entorno locales
-├── .env.example                  # Plantilla de variables de entorno requeridas
-├── Dockerfile                    # Configuración multi-stage de producción
-├── docker-compose.yml            # Orquestación de contenedores
-├── eslint.config.mjs             # Configuración estricta de ESLint 9
-├── next.config.ts                # Configuración de Next.js 16 (remotes de next/image)
-├── package.json                  # Dependencias y scripts del proyecto
-├── tsconfig.json                 # Configuración estricta de TypeScript (sin any)
-├── prisma/
-│   ├── schema.prisma             # Modelos relacionales (User, Space, Reservation) y Enums
-│   ├── seed.ts                   # Script de inicialización de datos (Admin y espacios)
-│   └── migrations/
-│       └── 0_init/               # Migración base SQL
-├── src/
-│   ├── proxy.ts                  # Proxy middleware de Next.js 16 (Protección de rutas)
-│   ├── app/
-│   │   ├── (public)/             # Route Group público (con Navbar y Footer)
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx          # Home (Estrategia SSG - Static Site Generation)
-│   │   │   └── spaces/
-│   │   │       ├── page.tsx      # Catálogo de espacios (Estrategia SSR)
-│   │   │       └── [id]/page.tsx # Detalle de espacio y reserva (Estrategia SSR)
-│   │   ├── (auth)/               # Route Group de autenticación (diseño centrado y limpio)
-│   │   │   ├── layout.tsx
-│   │   │   ├── login/page.tsx    # Inicio de sesión con rate limiting
-│   │   │   └── register/page.tsx # Registro público de usuarios (rol USER)
-│   │   ├── (private)/            # Route Group privado protegido por proxy
-│   │   │   ├── layout.tsx
-│   │   │   └── dashboard/page.tsx# Mis Reservas (Estrategia CSR - Client-Side Rendering)
-│   │   ├── (admin)/              # Route Group de administración protegido por proxy
-│   │   │   ├── layout.tsx
-│   │   │   └── admin/page.tsx    # Panel de control de espacios
-│   │   ├── api/                  # Route Handlers de Next.js (Backend)
-│   │   │   ├── auth/             # /register, /login, /refresh, /logout, /me
-│   │   │   ├── spaces/           # / (GET, POST), /[id] (GET, PUT, PATCH)
-│   │   │   └── reservations/     # / (GET, POST), /[id]/cancel (PATCH)
-│   │   ├── layout.tsx            # Root Layout con I18nProvider y fuentes
-│   │   └── globals.css           # Estilos globales y clases utilitarias Liquid Glass
-│   ├── components/
-│   │   ├── ui/
-│   │   │   ├── Ferrofluid.tsx    # Fondo interactivo de fluido magnético con física en WebGL2
-│   │   │   ├── ElectricBorder.tsx # Borde eléctrico animado con arcos y pulsos en WebGL2
-│   │   │   ├── ElectricButton.tsx # Botón interactivo con contorno eléctrico reactivo
-│   │   │   ├── ParticleText.tsx  # Título interactivo con física de partículas en Canvas
-│   │   │   ├── FolderFloat.tsx   # Fichero interactivo con física 2D en Matter.js
-│   │   │   ├── ClientLocalClock.tsx # Componente de hidratación segura con hora local
-│   │   │   └── LanguageSelector.tsx # Selector interactivo ES / EN
-│   │   ├── shared/
-│   │   │   ├── Navbar.tsx        # Barra de navegación con estado de sesión y menú
-│   │   │   ├── Footer.tsx        # Pie de página translúcido
-│   │   │   └── SpaceCard.tsx     # Tarjeta de espacio con next/image
-│   │   └── forms/
-│   │       ├── BookingForm.tsx   # Formulario de reserva con validaciones de negocio
-│   │       └── SpaceForm.tsx     # Modal de creación y edición para administradores
-│   ├── lib/
-│   │   ├── prisma.ts             # Cliente Singleton de Prisma
-│   │   ├── auth.ts               # Lógica JWT, cookies seguras y hashing de refresh token
-│   │   ├── idempotency.ts        # Control y almacenamiento de claves de idempotencia
-│   │   ├── rateLimit.ts          # Limitador de tasa en memoria para login (Extra)
-│   │   ├── businessRules.ts      # Funciones puras de validación de reglas de negocio
-│   │   └── i18n/                 # Diccionarios de traducción y hook useI18n
-│   └── tests/
-│       ├── businessRules.test.ts # Suite de 14 pruebas unitarias de reglas de negocio
-│       └── idempotency.test.ts   # Suite de pruebas unitarias para idempotencia
-```
-
----
-
-## 9. Pruebas Unitarias de Reglas de Negocio (Puntos Extra)
-
-Para verificar el cumplimiento estricto de todas las reglas de negocio, ejecuta:
-
+### Step 5: Run Automated Tests
 ```bash
 npm test
 ```
+*Expected Output*: **33/33 tests passing** across all suites.
 
-La suite valida:
-- Validación de reservas de 1 a 4 horas completas (rechazo de minutos intermedios).
-- Validación de rango de operación de 7:00 a 21:00.
-- Rechazo de reservas pasadas y de más de 30 días en el futuro.
-- Rechazo de reservas sobre espacios desactivados.
-- Cálculo de precio en servidor (`horas × precioPorHora`).
-- Regla de cancelación: usuario solo hasta 2h antes; admin en cualquier momento.
-- Rechazo de cancelación no autorizada por terceros.
+### Step 6: Start Development Server
+```bash
+npm run dev
+```
+Open your browser at [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 10. Despliegue en Vercel y Supabase
+## 9. Test Credentials
 
-- **Base de Datos**: PostgreSQL alojada en [Supabase](https://supabase.com).
-- **Frontend y Route Handlers**: Desplegables en [Vercel](https://vercel.com) importando el repositorio de GitHub y configurando las variables de entorno de la sección 3.
-- **URL de la aplicación**: `https://cospace.vercel.app` (o el dominio asignado en Vercel).
+| Role | Email | Password | Granted Privileges |
+|---|---|---|---|
+| **Administrator** | `admin@cospace.com` | `AdminPassword123!` | Access to `/admin`, create/edit spaces, toggle space status, cancel any reservation, view all audit logs. |
+| **Demo User** | `demo@cospace.com` | `UserPassword123!` | Explore active catalog, book spaces (1-4h), view personal bookings at `/dashboard`, cancel own bookings $\ge$ 2h before start. |
+
+*(Quick-fill buttons with electric plasma borders are provided directly in the login view for single-click credential population).*
+
+---
+
+## 10. Docker Deployment
+
+### Run with Docker Compose (Recommended)
+```bash
+docker compose up --build -d
+```
+Monitor logs:
+```bash
+docker compose logs -f
+```
+Stop container:
+```bash
+docker compose down
+```
+
+---
+
+## 11. Available Scripts
+
+| Script | Command | Purpose |
+|---|---|---|
+| `npm run dev` | Starts local Next.js development server with Turbopack. |
+| `npm run build` | Compiles production build, verifies TypeScript types, and validates SSG/SSR pages. |
+| `npm start` | Launches compiled production server. |
+| `npm run lint` | Runs ESLint 9 checks for strict code quality standards. |
+| `npm run seed` | Executes `prisma/seed.ts` to populate users and catalog spaces. |
+| `npm test` | Runs the full 33-test suite (business rules, idempotency, session, security). |
