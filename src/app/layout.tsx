@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { I18nProvider } from '@/lib/i18n/I18nContext';
-import Ferrofluid from '@/components/ui/Ferrofluid';
 
 export const metadata: Metadata = {
   title: 'CoSpace - Plataforma Inteligente de Reservas de Coworking',
@@ -16,19 +15,6 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className="min-h-screen text-slate-100 antialiased flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
-        {/* Fondo interactivo de fluido magnético con física de partículas */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden w-full h-full opacity-65">
-          <Ferrofluid
-            colors={['#ffffff', '#06b6d4', '#06b6d4']}
-            spikeHeight={1}
-            sharpness={2.5}
-            tilt={48}
-            mouseInteraction={true}
-            clickPulse={true}
-            transparent={true}
-          />
-        </div>
-
         <I18nProvider>
           <div className="relative z-10 flex flex-col min-h-screen w-full">
             {children}
