@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { ReservationStatus, Role } from '@prisma/client';
 import { checkIdempotency, saveIdempotencyRecord } from '@/lib/idempotency';
+import { checkRateLimit } from '@/lib/rateLimit';
 import {
   calculateTotalPrice,
   validateBookingWindow,
@@ -76,6 +77,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Debes iniciar sesión para realizar una reserva' }, { status: 401 });
+    }
+
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    const rateLimit = checkRateLimit(`booking:${session.userId}:${ip}`, 25, 5 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Has realizado demasiadas solicitudes en poco tiempo. Por favor espera ${rateLimit.resetInSeconds} segundos antes de volver a intentar.`,
+        },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

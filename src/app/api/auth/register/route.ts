@@ -9,6 +9,7 @@ import {
   setAuthCookies,
 } from '@/lib/auth';
 import { Role } from '@prisma/client';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -18,6 +19,17 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    const rateLimit = checkRateLimit(`register:${ip}`, 10, 15 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: `Demasiados intentos de registro. Por favor espera ${rateLimit.resetInSeconds} segundos antes de volver a intentar.`,
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
 

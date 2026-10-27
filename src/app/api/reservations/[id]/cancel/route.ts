@@ -96,3 +96,6 @@ export async function PATCH(
     );
   }
 }
+
+// Permitir tanto PATCH como POST para cancelación (compatibilidad con clientes y pruebas automatizadas)
+export const POST = PATCH;
