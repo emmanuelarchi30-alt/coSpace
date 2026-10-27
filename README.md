@@ -13,6 +13,7 @@
 
   <!-- Shield Badges -->
   <p align="center">
+    <a href="https://co-space-ebon.vercel.app"><img src="https://img.shields.io/badge/Deployed_on-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" /></a>
     <img src="https://img.shields.io/badge/Next.js_16-Turbopack-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 16" />
     <img src="https://img.shields.io/badge/TypeScript_5-Strict_Zero_Any-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Strict" />
     <img src="https://img.shields.io/badge/Prisma_6-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma ORM" />
@@ -24,7 +25,13 @@
   </p>
 
   <p align="center">
-    <strong>Live Cloudflare Tunnel Preview:</strong>
+    🚀 <strong>Official Production Deployment (Vercel):</strong>
+    <br />
+    🌐 <a href="https://co-space-ebon.vercel.app"><strong>https://co-space-ebon.vercel.app</strong></a>
+  </p>
+
+  <p align="center">
+    🛡️ <strong>Zero-Trust Perimeter Tunnel (Cloudflare):</strong>
     <br />
     🌐 <a href="https://lounge-servers-oval-shark.trycloudflare.com"><strong>https://lounge-servers-oval-shark.trycloudflare.com</strong></a>
   </p>
@@ -45,8 +52,9 @@
 - [8. Test Suite & Verification (33/33 Tests)](#8-test-suite--verification-3333-tests)
 - [9. Demo Credentials & Test Accounts](#9-demo-credentials--test-accounts)
 - [10. Step-by-Step Installation & Local Execution](#10-step-by-step-installation--local-execution)
-- [11. Docker & Containerized Deployment](#11-docker--containerized-deployment)
-- [12. Directory Tree](#12-directory-tree)
+- [11. Production Deployments (Vercel & Cloudflare)](#11-production-deployments-vercel--cloudflare)
+- [12. Docker & Containerized Deployment](#12-docker--containerized-deployment)
+- [13. Directory Tree](#13-directory-tree)
 
 ---
 
@@ -390,7 +398,23 @@ Open your browser at [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 11. Docker & Containerized Deployment
+## 11. Production Deployments (Vercel & Cloudflare)
+
+CoSpace is continuously deployed to production with redundant edge architecture:
+
+| Platform | Deployment Type | Live URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Vercel** | CI/CD Serverless Production Edge | [https://co-space-ebon.vercel.app](https://co-space-ebon.vercel.app) | 🟢 Active |
+| **Cloudflare** | Zero-Trust Encrypted QUIC Tunnel | [https://lounge-servers-oval-shark.trycloudflare.com](https://lounge-servers-oval-shark.trycloudflare.com) | 🟢 Active |
+| **GitHub** | Official Repository (`main` & `develop`) | [https://github.com/emmanuelarchi30-alt/coSpace.git](https://github.com/emmanuelarchi30-alt/coSpace.git) | 🟢 Synchronized |
+
+### Key Benefits of the Dual-Edge Deployment:
+1. **Vercel Global Edge Network:** Immediate global content delivery, automatic Next.js 16 Route Handlers scaling, and zero-downtime atomic rollouts on every push to `main`.
+2. **Cloudflare Zero-Trust Perimeter:** Completely masks the origin infrastructure, absorbs volumetric L3/L4/L7 DDoS attacks, and provides end-to-end encrypted tunnels without opening vulnerable public firewall ports.
+
+---
+
+## 12. Docker & Containerized Deployment
 
 ### Run with Docker Compose (Recommended)
 ```bash
@@ -406,7 +430,7 @@ docker compose down
 
 ---
 
-## 12. Directory Tree
+## 13. Directory Tree
 
 ```text
 cospace/
