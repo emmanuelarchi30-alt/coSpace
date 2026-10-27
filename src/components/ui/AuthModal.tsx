@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import {
@@ -14,6 +14,7 @@ import {
   Loader2,
   KeyRound,
   CheckCircle2,
+  ShieldAlert,
 } from 'lucide-react';
 import ElectricButton from './ElectricButton';
 
@@ -50,6 +51,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // Estado de éxito
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Sincronizar pestaña activa con la prop initialTab al abrir el modal
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+      setLoginError(null);
+      setRegError(null);
+      setSuccessMsg(null);
+    }
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 
@@ -211,7 +222,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t('form.email', 'Correo electrónico')}
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
                   <input
                     type="email"
                     required
@@ -228,7 +239,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t('form.password', 'Contraseña')}
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
                   <input
                     type="password"
                     required
@@ -263,36 +274,67 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </ElectricButton>
             </form>
 
-            {/* Credenciales de Prueba del Seed */}
+            {/* Credenciales de Prueba del Seed con marco de botón y animación de rayo */}
             <div className="mt-5 pt-4 border-t border-white/10 text-center">
               <span className="text-[11px] uppercase tracking-wider text-slate-400 font-mono mb-2 flex items-center justify-center gap-1.5">
                 <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
                 Credenciales de Prueba del Seed:
               </span>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-3">
-                <button
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 mt-3">
+                <ElectricButton
                   type="button"
+                  color="#f59e0b"
+                  borderRadius={12}
+                  thickness={1.3}
+                  speed={1}
+                  glow={0.8}
+                  arcs={1}
                   onClick={() => {
                     setLoginEmail('admin@cospace.com');
                     setLoginPassword('AdminPassword123!');
                     setLoginError(null);
                   }}
-                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer hover:scale-105"
+                  wrapperClassName="w-full sm:w-auto"
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-amber-500/50 text-amber-300 font-semibold text-xs shadow-md shadow-amber-500/10 transition-all hover:bg-amber-500/20 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Admin (admin@cospace.com)
-                </button>
-                <button
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Admin (admin@cospace.com)</span>
+                </ElectricButton>
+                <ElectricButton
                   type="button"
+                  color="#06b6d4"
+                  borderRadius={12}
+                  thickness={1.3}
+                  speed={1}
+                  glow={0.8}
+                  arcs={1}
                   onClick={() => {
                     setLoginEmail('demo@cospace.com');
                     setLoginPassword('UserPassword123!');
                     setLoginError(null);
                   }}
-                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-semibold text-xs shadow-md shadow-cyan-500/10 transition-all cursor-pointer hover:scale-105"
+                  wrapperClassName="w-full sm:w-auto"
+                  className="w-full sm:w-auto px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/50 text-cyan-300 font-semibold text-xs shadow-md shadow-cyan-500/10 transition-all hover:bg-cyan-500/20 cursor-pointer flex items-center justify-center gap-1.5"
                 >
-                  Usuario (demo@cospace.com)
-                </button>
+                  <User className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Usuario (demo@cospace.com)</span>
+                </ElectricButton>
               </div>
+            </div>
+
+            <div className="mt-4 text-center text-xs text-slate-400">
+              <span>{t('auth.noAccount', '¿No tienes una cuenta aún?')} </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('register');
+                  setLoginError(null);
+                  setRegError(null);
+                }}
+                className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors cursor-pointer"
+              >
+                {t('auth.submitRegister', 'Regístrate aquí')}
+              </button>
             </div>
           </div>
         )}
@@ -322,7 +364,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t('form.name', 'Nombre completo')}
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
                   <input
                     type="text"
                     required
@@ -339,7 +381,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t('form.email', 'Correo electrónico')}
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
                   <input
                     type="email"
                     required
@@ -356,7 +398,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t('form.password', 'Contraseña (mínimo 6 caracteres)')}
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
                   <input
                     type="password"
                     required
@@ -391,6 +433,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 )}
               </ElectricButton>
             </form>
+
+            <div className="mt-4 text-center text-xs text-slate-400">
+              <span>{t('auth.hasAccount', '¿Ya tienes una cuenta registrada?')} </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setLoginError(null);
+                  setRegError(null);
+                }}
+                className="text-purple-400 hover:text-purple-300 font-bold transition-colors cursor-pointer"
+              >
+                {t('auth.submitLogin', 'Inicia sesión aquí')}
+              </button>
+            </div>
           </div>
         )}
       </div>

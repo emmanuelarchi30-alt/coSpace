@@ -533,11 +533,7 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
     }
 
     const program = gl ? link(gl) : null;
-    if (!gl || !program) {
-      canvas.style.display = 'none';
-      container.classList.add('electric-border--fallback');
-      return;
-    }
+    if (!gl || !program) return;
 
     const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const vao = gl.createVertexArray();
@@ -832,8 +828,6 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       if (!gl.isContextLost()) {
         gl.deleteVertexArray(vao);
         gl.deleteProgram(program.program);
-        const ext = gl.getExtension('WEBGL_lose_context');
-        if (ext) ext.loseContext();
       }
     };
   }, [generation]);

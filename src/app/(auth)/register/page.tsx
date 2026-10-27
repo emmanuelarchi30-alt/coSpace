@@ -80,7 +80,7 @@ export default function RegisterPage(): React.JSX.Element {
             {t('form.name', 'Nombre completo')}
           </label>
           <div className="relative">
-            <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <User className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
             <input
               type="text"
               required
@@ -97,7 +97,7 @@ export default function RegisterPage(): React.JSX.Element {
             {t('form.email', 'Correo electrónico')}
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Mail className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
             <input
               type="email"
               required
@@ -114,7 +114,7 @@ export default function RegisterPage(): React.JSX.Element {
             {t('form.password', 'Contraseña (mínimo 6 caracteres)')}
           </label>
           <div className="relative">
-            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Lock className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
             <input
               type="password"
               required
