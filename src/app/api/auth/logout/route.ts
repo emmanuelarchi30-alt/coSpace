@@ -5,6 +5,7 @@ import {
   clearAuthCookies,
   REFRESH_COOKIE_NAME,
   verifyRefreshToken,
+  hashToken,
 } from '@/lib/auth';
 
 export async function POST(_request: NextRequest): Promise<NextResponse> {
@@ -15,23 +16,41 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
     if (rawRefreshToken) {
       const payload = await verifyRefreshToken(rawRefreshToken);
       if (payload?.userId) {
-        // Revoke stored refresh token in database
+        const hashed = hashToken(rawRefreshToken);
+        // Revocar token en el registro de usuario
         await prisma.user.updateMany({
           where: { id: payload.userId },
           data: { refreshToken: null },
         });
+
+        // Marcar token como revocado en la tabla de refresh_tokens
+        await prisma.refreshToken.updateMany({
+          where: { tokenHash: hashed },
+          data: { isRevoked: true },
+        });
+
+        // Registrar cierre de sesión en auditoría
+        await prisma.auditLog.create({
+          data: {
+            userId: payload.userId,
+            action: 'LOGOUT',
+            entity: 'User',
+            entityId: payload.userId,
+            details: 'Cierre de sesión y revocación de tokens completada',
+          },
+        });
       }
     }
 
-    // Clear HTTP-only cookies
+    // Limpiar cookies HTTP-only del navegador
     await clearAuthCookies();
 
     return NextResponse.json({
       message: 'Sesión cerrada exitosamente',
     });
   } catch (error) {
-    console.error('Logout error:', error);
-    // Still clear cookies even if DB call failed
+    console.error('Error al cerrar sesión:', error);
+    // Limpiar cookies de todas formas para proteger al usuario
     await clearAuthCookies();
     return NextResponse.json(
       { message: 'Sesión cerrada' },

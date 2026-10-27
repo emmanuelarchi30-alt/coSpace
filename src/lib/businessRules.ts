@@ -15,12 +15,12 @@ export interface ReservationParams {
 }
 
 /**
- * Validates reservation duration:
- * 1. Must be exact whole hours (e.g. 10:00 to 12:00, not 10:30 to 11:45)
- * 2. Duration must be between 1 and 4 hours
+ * Regla 1: Valida la duración de la reserva:
+ * 1. Debe ser en horas completas exactas (por ejemplo: de 10:00 a 12:00, no de 10:30 a 11:45).
+ * 2. La duración debe estar entre 1 y 4 horas completas.
  */
 export function validateDurationAndHours(start: Date, end: Date): BusinessRuleValidationResult {
-  // Check exact whole hours (minutes, seconds, ms must be 0)
+  // Comprobación de horas completas exactas (minutos, segundos y milisegundos en 0)
   if (
     start.getMinutes() !== 0 ||
     start.getSeconds() !== 0 ||
@@ -51,8 +51,8 @@ export function validateDurationAndHours(start: Date, end: Date): BusinessRuleVa
 }
 
 /**
- * Validates allowed operating hours:
- * Must be between 7:00 and 21:00.
+ * Regla 2: Valida el horario de operación permitido:
+ * Solo se puede reservar entre las 7:00 y las 21:00.
  */
 export function validateOperatingHours(start: Date, end: Date): BusinessRuleValidationResult {
   const startHour = start.getHours();
@@ -66,7 +66,7 @@ export function validateOperatingHours(start: Date, end: Date): BusinessRuleVali
     };
   }
 
-  // If end is at 21:00, that's valid. If end hour > 21 or past 21:00, invalid.
+  // Si finaliza a las 21:00 es válido; si excede las 21:00 es inválido
   if (endHour > 21 || (endHour === 21 && (end.getMinutes() > 0 || end.getSeconds() > 0))) {
     return {
       valid: false,
@@ -75,7 +75,7 @@ export function validateOperatingHours(start: Date, end: Date): BusinessRuleVali
     };
   }
 
-  // Must be on the same calendar day
+  // Debe ser en el mismo día del calendario
   if (
     start.getFullYear() !== end.getFullYear() ||
     start.getMonth() !== end.getMonth() ||
@@ -92,8 +92,8 @@ export function validateOperatingHours(start: Date, end: Date): BusinessRuleVali
 }
 
 /**
- * Validates advance booking window:
- * Cannot be in the past or more than 30 days in advance.
+ * Regla 3: Valida la ventana temporal de reserva:
+ * No se puede reservar en el pasado ni con más de 30 días de anticipación.
  */
 export function validateBookingWindow(start: Date, now: Date = new Date()): BusinessRuleValidationResult {
   if (start.getTime() <= now.getTime()) {
@@ -117,7 +117,7 @@ export function validateBookingWindow(start: Date, now: Date = new Date()): Busi
 }
 
 /**
- * Checks if a user has exceeded the limit of 3 future confirmed reservations.
+ * Regla 6: Comprueba que el usuario no exceda el límite de 3 reservas futuras confirmadas.
  */
 export async function validateUserMaxFutureReservations(
   userId: string,
@@ -143,9 +143,9 @@ export async function validateUserMaxFutureReservations(
 }
 
 /**
- * Checks for space overlap:
- * Two confirmed reservations cannot overlap in the same space.
- * Overlap condition: start < existingEnd && end > existingStart
+ * Regla 4: Valida solapamiento en el espacio:
+ * Dos reservas confirmadas no pueden solaparse en el mismo espacio.
+ * Condición de solapamiento: inicio < finExistente && fin > inicioExistente
  */
 export async function validateSpaceOverlap(
   spaceId: string,
@@ -165,7 +165,7 @@ export async function validateSpaceOverlap(
     return {
       valid: false,
       message: 'El espacio ya cuenta con una reserva confirmada en el horario solicitado.',
-      statusCode: 409, // Conflict
+      statusCode: 409,
     };
   }
 
@@ -173,8 +173,9 @@ export async function validateSpaceOverlap(
 }
 
 /**
- * Checks for user overlap:
- * A user cannot have two overlapping confirmed reservations, even in different spaces.
+ * Regla 5: Valida solapamiento del usuario:
+ * Un usuario no puede tener dos reservas confirmadas que se solapen en el tiempo,
+ * incluso si corresponden a espacios diferentes.
  */
 export async function validateUserOverlap(
   userId: string,
@@ -194,7 +195,7 @@ export async function validateUserOverlap(
     return {
       valid: false,
       message: 'Ya tienes otra reserva confirmada que se solapa con este horario.',
-      statusCode: 409, // Conflict
+      statusCode: 409,
     };
   }
 
@@ -202,7 +203,8 @@ export async function validateUserOverlap(
 }
 
 /**
- * Validates space availability and active status.
+ * Regla 7: Valida disponibilidad y estado activo del espacio:
+ * No se puede reservar un espacio desactivado.
  */
 export function validateSpaceActive(space: Space | null): BusinessRuleValidationResult {
   if (!space) {
@@ -225,17 +227,17 @@ export function validateSpaceActive(space: Space | null): BusinessRuleValidation
 }
 
 /**
- * Server calculates total price:
- * hours * pricePerHour. Never accept from client!
+ * Regla 8: El servidor calcula el precio total:
+ * horas * precioPorHora. Nunca se acepta desde el cliente.
  */
 export function calculateTotalPrice(hours: number, pricePerHour: number): number {
   return Number((hours * pricePerHour).toFixed(2));
 }
 
 /**
- * Validates cancellation rules:
- * - Only the owner or an admin can cancel.
- * - Standard users can only cancel up to 2 hours before start time.
+ * Reglas 9, 10 y 14: Valida reglas de cancelación:
+ * - Solo el dueño de la reserva o un administrador puede cancelarla.
+ * - Los usuarios estándar solo pueden cancelar hasta 2 horas antes del inicio.
  */
 export function validateCancellation(
   reservation: { userId: string; startTime: Date; status: ReservationStatus },
@@ -251,7 +253,7 @@ export function validateCancellation(
     };
   }
 
-  // Rule 9: Only owner or admin can cancel
+  // Regla 9 y 14: Solo el dueño de la reserva o un administrador puede cancelarla
   const isOwner = reservation.userId === currentUserId;
   const isAdmin = currentUserRole === Role.ADMIN;
 
@@ -263,7 +265,7 @@ export function validateCancellation(
     };
   }
 
-  // Rule 10: Standard users can cancel up to 2 hours before start
+  // Regla 10: Los usuarios estándar pueden cancelar hasta 2 horas antes del inicio
   if (!isAdmin) {
     const twoHoursMs = 2 * 60 * 60 * 1000;
     const timeUntilStart = reservation.startTime.getTime() - now.getTime();
@@ -281,7 +283,7 @@ export function validateCancellation(
 }
 
 /**
- * Rule 13: Cannot deactivate a space that has future confirmed reservations.
+ * Regla 13: No se puede desactivar un espacio que tenga reservas futuras confirmadas.
  */
 export async function validateSpaceDeactivation(
   spaceId: string,

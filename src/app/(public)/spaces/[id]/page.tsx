@@ -7,7 +7,7 @@ import BookingForm from '@/components/forms/BookingForm';
 import { ArrowLeft, Users, MapPin, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 import { SpaceType } from '@prisma/client';
 
-// Strategy: SSR (Server-Side Rendering as required by Requirement 4)
+// Estrategia: SSR (Server-Side Rendering requerido en el Requisito 4)
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -21,7 +21,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
     where: { id },
   });
 
-  // If space does not exist or is inactive, trigger 404 (Rule 7 & 12)
+  // Si el espacio no existe o está desactivado, responder con 404 (Reglas 7 y 12)
   if (!space || !space.isActive) {
     notFound();
   }
@@ -34,7 +34,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Back button */}
+      {/* Botón de regreso al catálogo */}
       <div>
         <Link
           href="/spaces"
@@ -46,9 +46,9 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-        {/* Left Column: Image, Details & Amenities (2 cols) */}
+        {/* Columna Izquierda: Imagen, detalles y comodidades */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Main Space Image with next/image */}
+          {/* Imagen optimizada con next/image */}
           <div className="relative h-80 sm:h-96 w-full rounded-3xl overflow-hidden liquid-glass border border-white/20 shadow-2xl">
             <Image
               src={space.imageUrl}
@@ -85,7 +85,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
             </div>
           </div>
 
-          {/* Quick Specifications */}
+          {/* Especificaciones rápidas */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div className="liquid-glass p-4 rounded-2xl border border-white/10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/15 flex items-center justify-center text-cyan-400">
@@ -124,7 +124,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
             </div>
           </div>
 
-          {/* Description */}
+          {/* Descripción */}
           <div className="liquid-glass p-6 rounded-2xl border border-white/10 space-y-3">
             <h2 className="text-base font-bold text-white">Descripción del Espacio</h2>
             <p className="text-sm text-slate-300 leading-relaxed font-light">
@@ -132,7 +132,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
             </p>
           </div>
 
-          {/* Amenities & Services */}
+          {/* Comodidades y servicios */}
           <div className="liquid-glass p-6 rounded-2xl border border-white/10 space-y-4">
             <h2 className="text-base font-bold text-white">Servicios y Comodidades Incluidas</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -146,7 +146,7 @@ export default async function SpaceDetailPage({ params }: PageProps): Promise<Re
           </div>
         </div>
 
-        {/* Right Column: Live Booking Form */}
+        {/* Columna Derecha: Formulario de reserva en tiempo real */}
         <div className="lg:col-span-1 sticky top-28">
           <BookingForm
             spaceId={space.id}

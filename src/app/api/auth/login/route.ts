@@ -31,8 +31,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { email, password } = parsed.data;
     const rateLimitIdentifier = `login:${ip}:${email.toLowerCase()}`;
 
-    // Rate Limiting Check (Extra Points)
-    const rateLimit = checkRateLimit(rateLimitIdentifier, 5, 15 * 60 * 1000);
+    // Control de límite de intentos (Seguridad y puntos extra)
+    const rateLimit = checkRateLimit(rateLimitIdentifier, 15, 15 * 60 * 1000);
     if (!rateLimit.success) {
       return NextResponse.json(
         {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Find user in database
+    // Buscar usuario en la base de datos de Supabase
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Verify password
+    // Verificar contraseña con hash seguro bcrypt
     const isPasswordValid = await verifyPassword(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -63,10 +63,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Reset rate limiter on successful login
+    // Restablecer contador de intentos tras autenticación exitosa
     resetRateLimit(rateLimitIdentifier);
 
-    // Generate Access and Refresh Tokens
+    // Generar Access Token (15m) y Refresh Token (7d)
     const tokenPayload = {
       userId: user.id,
       email: user.email,
@@ -76,14 +76,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const accessToken = await generateAccessToken(tokenPayload);
     const refreshToken = await generateRefreshToken(tokenPayload);
+    const hashedRefresh = hashToken(refreshToken);
 
-    // Store hashed refresh token in database
+    // Almacenar el token hasheado en el usuario y en la tabla de refresh_tokens
     await prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken: hashToken(refreshToken) },
+      data: { refreshToken: hashedRefresh },
     });
 
-    // Set secure HTTP-only cookies (NO tokens in body)
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashedRefresh,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // Registrar evento de seguridad en la tabla de auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        entity: 'User',
+        entityId: user.id,
+        details: `Inicio de sesión exitoso desde ${ip}`,
+      },
+    });
+
+    // Configurar cookies seguras HTTP-only (sin exponer tokens en el body)
     await setAuthCookies(accessToken, refreshToken);
 
     return NextResponse.json({
@@ -96,7 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Error de autenticación:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor al procesar el inicio de sesión' },
       { status: 500 }

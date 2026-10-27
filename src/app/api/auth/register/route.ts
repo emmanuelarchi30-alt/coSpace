@@ -30,7 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { name, email, password } = parsed.data;
 
-    // Check if email already exists
+    // Verificar si el correo ya se encuentra registrado
     const existingUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -42,10 +42,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Hash password
+    // Hashear contraseña con bcrypt
     const hashedPassword = await hashPassword(password);
 
-    // Create user with default USER role (Admin role only through seed as required)
+    // Crear usuario con rol USER por defecto (el rol ADMIN se crea exclusivamente por seed)
     const user = await prisma.user.create({
       data: {
         name,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    // Generate tokens
+    // Generar tokens de acceso y renovación
     const tokenPayload = {
       userId: user.id,
       email: user.email,
@@ -65,17 +65,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const accessToken = await generateAccessToken(tokenPayload);
     const refreshToken = await generateRefreshToken(tokenPayload);
+    const hashedRefresh = hashToken(refreshToken);
 
-    // Store hashed refresh token in database
+    // Guardar token de refresco en la base de datos
     await prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken: hashToken(refreshToken) },
+      data: { refreshToken: hashedRefresh },
     });
 
-    // Set secure HTTP-only cookies
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashedRefresh,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // Registrar en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'USER_REGISTERED',
+        entity: 'User',
+        entityId: user.id,
+        details: `Nuevo usuario registrado: ${user.email}`,
+      },
+    });
+
+    // Configurar cookies seguras HTTP-only
     await setAuthCookies(accessToken, refreshToken);
 
-    // Return user info WITHOUT returning tokens in body (Requirement 7)
+    // Retornar información del usuario sin exponer tokens en la respuesta (Requisito 7)
     return NextResponse.json(
       {
         message: 'Usuario registrado exitosamente',
@@ -89,7 +109,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Error en registro:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor al procesar el registro' },
       { status: 500 }

@@ -15,7 +15,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [language, setLanguageState] = useState<Language>('es');
 
   useEffect(() => {
-    // Read from localStorage or navigator language
+    // Leer idioma guardado en el navegador o preferencia del sistema operativo
     const stored = localStorage.getItem('cospace_lang') as Language | null;
     if (stored === 'es' || stored === 'en') {
       setLanguageState(stored);

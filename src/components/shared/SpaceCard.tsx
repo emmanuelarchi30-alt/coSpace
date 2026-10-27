@@ -48,7 +48,7 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
 
   return (
     <div className="liquid-glass-card rounded-2xl overflow-hidden flex flex-col group h-full">
-      {/* Image Container with next/image */}
+      {/* Contenedor de imagen optimizada con next/image */}
       <div className="relative h-52 w-full overflow-hidden bg-slate-900">
         <Image
           src={imageUrl}

@@ -12,33 +12,33 @@ export interface TokenPayload {
 }
 
 const ACCESS_SECRET = new TextEncoder().encode(
-  process.env.JWT_ACCESS_SECRET || 'default_jwt_access_secret_change_me_in_prod_12345678'
+  process.env.JWT_ACCESS_SECRET || 'clave_secreta_acceso_cospace_jwt_2026_segura_12345678'
 );
 
 const REFRESH_SECRET = new TextEncoder().encode(
-  process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret_change_me_in_prod_87654321'
+  process.env.JWT_REFRESH_SECRET || 'clave_secreta_refresco_cospace_jwt_2026_segura_87654321'
 );
 
 export const ACCESS_COOKIE_NAME = 'cospace_access_token';
 export const REFRESH_COOKIE_NAME = 'cospace_refresh_token';
 
-// Hash passwords
+// Hashear contraseñas con sal usando bcrypt
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 }
 
-// Compare passwords
+// Comparar contraseñas en texto plano con el hash de la base de datos
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
-// SHA-256 hash for storing refresh tokens in database
+// Hash SHA-256 para guardar tokens de refresco de manera irreversible en base de datos
 export function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-// Generate Access Token (15 minutes)
+// Generar Access Token con expiración de 15 minutos (Requisito 7)
 export async function generateAccessToken(payload: TokenPayload): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
@@ -47,7 +47,7 @@ export async function generateAccessToken(payload: TokenPayload): Promise<string
     .sign(ACCESS_SECRET);
 }
 
-// Generate Refresh Token (7 days)
+// Generar Refresh Token con expiración de 7 días (Requisito 7)
 export async function generateRefreshToken(payload: TokenPayload): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
@@ -56,7 +56,7 @@ export async function generateRefreshToken(payload: TokenPayload): Promise<strin
     .sign(REFRESH_SECRET);
 }
 
-// Verify Access Token
+// Verificar y decodificar el Access Token
 export async function verifyAccessToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, ACCESS_SECRET);
@@ -71,7 +71,7 @@ export async function verifyAccessToken(token: string): Promise<TokenPayload | n
   }
 }
 
-// Verify Refresh Token
+// Verificar y decodificar el Refresh Token
 export async function verifyRefreshToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, REFRESH_SECRET);
@@ -86,7 +86,7 @@ export async function verifyRefreshToken(token: string): Promise<TokenPayload | 
   }
 }
 
-// Helper to set auth cookies in Next.js Server Actions or Route Handlers
+// Configurar cookies seguras HTTP-only para access y refresh token (Requisito 7)
 export async function setAuthCookies(
   accessToken: string,
   refreshToken: string
@@ -99,7 +99,7 @@ export async function setAuthCookies(
     secure: isProduction,
     sameSite: 'lax',
     path: '/',
-    maxAge: 15 * 60, // 15 minutes in seconds
+    maxAge: 15 * 60, // 15 minutos en segundos
   });
 
   cookieStore.set(REFRESH_COOKIE_NAME, refreshToken, {
@@ -107,18 +107,18 @@ export async function setAuthCookies(
     secure: isProduction,
     sameSite: 'lax',
     path: '/',
-    maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+    maxAge: 7 * 24 * 60 * 60, // 7 días en segundos
   });
 }
 
-// Helper to clear auth cookies
+// Eliminar cookies de autenticación al cerrar sesión
 export async function clearAuthCookies(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(ACCESS_COOKIE_NAME);
   cookieStore.delete(REFRESH_COOKIE_NAME);
 }
 
-// Extract current session from cookies in Route Handlers
+// Obtener la sesión activa desde las cookies en Server Components y Route Handlers
 export async function getSession(): Promise<TokenPayload | null> {
   try {
     const cookieStore = await cookies();

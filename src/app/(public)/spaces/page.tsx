@@ -18,7 +18,7 @@ interface PageProps {
 export default async function SpacesCatalogPage({ searchParams }: PageProps): Promise<React.JSX.Element> {
   const { type, q } = await searchParams;
 
-  // Build query condition ensuring deactivated spaces are excluded from the public catalog (Rule 12)
+  // Condición de consulta para excluir espacios desactivados del catálogo público (Regla 12)
   const whereCondition: {
     isActive: boolean;
     type?: SpaceType;

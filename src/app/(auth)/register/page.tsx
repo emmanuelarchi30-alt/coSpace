@@ -46,7 +46,7 @@ export default function RegisterPage(): React.JSX.Element {
 
   return (
     <div className="liquid-glass p-8 rounded-3xl border border-white/20 shadow-2xl relative">
-      {/* Return to Home Button */}
+      {/* Botón de regreso al inicio */}
       <div className="mb-4">
         <Link
           href="/"

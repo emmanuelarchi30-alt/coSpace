@@ -10,7 +10,7 @@ export default function AuthLayout({
 }): React.JSX.Element {
   return (
     <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden bg-gradient-to-b from-slate-950 via-[#0a1120] to-slate-950">
-      {/* Top Bar with Logo, Back Link & Language Toggle */}
+      {/* Barra superior con logotipo, botón de regreso y selector de idioma */}
       <div className="w-full max-w-6xl mx-auto flex items-center justify-between z-10 gap-3">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">

@@ -144,7 +144,7 @@ interface RgbColor {
 }
 
 const ParticleText: React.FC<ParticleTextProps> = ({
-  text = 'React Bits',
+  text = 'CoSpace',
   particleSize = 2,
   density = 4,
   color = 'currentColor',

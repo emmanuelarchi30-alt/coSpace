@@ -22,7 +22,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Verify token signature and expiration
+    // Verificar firma y tiempo de expiración del token
     const payload = await verifyRefreshToken(rawRefreshToken);
     if (!payload) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Validate that the hashed token in database matches (revocation check)
+    // Validar que el token coincida con el hash en la base de datos
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
     });
@@ -51,7 +51,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Generate new Access and Refresh tokens
+    // Generar nuevo par de tokens (Rotación de tokens)
     const tokenPayload = {
       userId: user.id,
       email: user.email,
@@ -61,14 +61,40 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
 
     const newAccessToken = await generateAccessToken(tokenPayload);
     const newRefreshToken = await generateRefreshToken(tokenPayload);
+    const hashedNew = hashToken(newRefreshToken);
 
-    // Update hashed refresh token in database
+    // Actualizar hash en usuario
     await prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken: hashToken(newRefreshToken) },
+      data: { refreshToken: hashedNew },
     });
 
-    // Update HTTP-only cookies
+    // Marcar token anterior como revocado y registrar el nuevo
+    await prisma.refreshToken.updateMany({
+      where: { tokenHash: hashedIncoming },
+      data: { isRevoked: true },
+    });
+
+    await prisma.refreshToken.create({
+      data: {
+        tokenHash: hashedNew,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // Registrar rotación en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'TOKEN_REFRESH',
+        entity: 'RefreshToken',
+        entityId: user.id,
+        details: 'Rotación periódica de tokens de acceso y refresco',
+      },
+    });
+
+    // Actualizar cookies HTTP-only
     await setAuthCookies(newAccessToken, newRefreshToken);
 
     return NextResponse.json({
@@ -81,7 +107,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error('Refresh token error:', error);
+    console.error('Error al renovar token:', error);
     return NextResponse.json(
       { error: 'Error interno al renovar sesión' },
       { status: 500 }

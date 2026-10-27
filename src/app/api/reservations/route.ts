@@ -92,7 +92,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const endTime = new Date(parsed.data.endTime);
     const now = new Date();
 
-    // Idempotency check (Extra Credit)
+    // Validación de idempotencia para prevenir duplicados por reintentos de red
     if (idempotencyKey) {
       const existing = await prisma.reservation.findUnique({
         where: { idempotencyKey },
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     const totalPrice = calculateTotalPrice(durationHours, Number(space.pricePerHour));
 
-    // Create reservation in transaction with confirmed status
+    // Crear reserva con registro de pago y auditoría
     const reservation = await prisma.reservation.create({
       data: {
         userId: session.userId,
@@ -187,6 +187,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         totalPrice,
         status: ReservationStatus.CONFIRMED,
         idempotencyKey: idempotencyKey || null,
+        payment: {
+          create: {
+            amount: totalPrice,
+            currency: 'USD',
+            status: 'PAID',
+            paymentMethod: 'CREDIT_CARD',
+          },
+        },
       },
       include: {
         space: {
@@ -198,6 +206,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             location: true,
           },
         },
+      },
+    });
+
+    // Registrar en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        reservationId: reservation.id,
+        action: 'RESERVATION_CREATED',
+        entity: 'Reservation',
+        entityId: reservation.id,
+        details: `Reserva creada exitosamente por \$${totalPrice} (${durationHours} horas)`,
       },
     });
 

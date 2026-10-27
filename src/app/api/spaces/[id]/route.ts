@@ -35,7 +35,7 @@ export async function GET(
       return NextResponse.json({ error: 'Espacio no encontrado' }, { status: 404 });
     }
 
-    // If space is deactivated, only admin can view it directly
+    // Si el espacio está desactivado, únicamente el administrador puede consultarlo directamente
     if (!space.isActive) {
       const session = await getSession();
       if (session?.role !== Role.ADMIN) {
@@ -45,7 +45,7 @@ export async function GET(
 
     return NextResponse.json({ space });
   } catch (error) {
-    console.error('Error fetching space detail:', error);
+    console.error('Error al consultar detalle del espacio:', error);
     return NextResponse.json(
       { error: 'Error interno al consultar el espacio' },
       { status: 500 }
@@ -89,7 +89,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Espacio no encontrado' }, { status: 404 });
     }
 
-    // If isActive is being changed to false (deactivation), check Rule 13
+    // Si se está desactivando el espacio, verificar la Regla 13 (no debe tener reservas futuras)
     if (parsed.data.isActive === false && existingSpace.isActive === true) {
       const deactivationValidation = await validateSpaceDeactivation(id);
       if (!deactivationValidation.valid) {
@@ -105,12 +105,23 @@ export async function PUT(
       data: parsed.data,
     });
 
+    // Registrar en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: 'SPACE_UPDATED',
+        entity: 'Space',
+        entityId: id,
+        details: `Espacio editado por administrador: ${updatedSpace.name}`,
+      },
+    });
+
     return NextResponse.json({
       message: 'Espacio actualizado exitosamente',
       space: updatedSpace,
     });
   } catch (error) {
-    console.error('Error updating space:', error);
+    console.error('Error al actualizar el espacio:', error);
     return NextResponse.json(
       { error: 'Error interno al actualizar el espacio' },
       { status: 500 }
@@ -147,7 +158,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Espacio no encontrado' }, { status: 404 });
     }
 
-    // Rule 13: Cannot deactivate if it has future confirmed reservations
+    // Regla 13: No se puede desactivar un espacio que tenga reservas futuras confirmadas
     if (!isActive && space.isActive) {
       const deactivationValidation = await validateSpaceDeactivation(id);
       if (!deactivationValidation.valid) {
@@ -163,12 +174,23 @@ export async function PATCH(
       data: { isActive },
     });
 
+    // Registrar cambio de estado en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: isActive ? 'SPACE_ACTIVATED' : 'SPACE_DEACTIVATED',
+        entity: 'Space',
+        entityId: id,
+        details: `Estado del espacio cambiado a ${isActive ? 'Activo' : 'Desactivado'}`,
+      },
+    });
+
     return NextResponse.json({
       message: isActive ? 'Espacio activado exitosamente' : 'Espacio desactivado exitosamente',
       space: updated,
     });
   } catch (error) {
-    console.error('Error toggling space state:', error);
+    console.error('Error al cambiar estado del espacio:', error);
     return NextResponse.json(
       { error: 'Error interno al cambiar el estado del espacio' },
       { status: 500 }

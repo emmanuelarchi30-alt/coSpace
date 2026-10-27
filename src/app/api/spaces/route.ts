@@ -39,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     if (!shouldShowAll) {
-      whereClause.isActive = true; // Rule 12: Inactive spaces do not appear in public catalog
+      whereClause.isActive = true; // Regla 12: Los espacios desactivados no aparecen en el catálogo público
     }
 
     const spaces = await prisma.space.findMany({
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ spaces });
   } catch (error) {
-    console.error('Error fetching spaces:', error);
+    console.error('Error al consultar espacios:', error);
     return NextResponse.json(
       { error: 'Error interno al consultar los espacios' },
       { status: 500 }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Validate authentication and admin role (Rule 1 & 7)
+    // Validar autenticación y rol de administrador
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
@@ -90,12 +90,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
+    // Registrar en auditoría
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: 'SPACE_CREATED',
+        entity: 'Space',
+        entityId: space.id,
+        details: `Nuevo espacio creado por administrador: ${space.name} (${space.type})`,
+      },
+    });
+
     return NextResponse.json(
       { message: 'Espacio creado exitosamente', space },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error creating space:', error);
+    console.error('Error al crear el espacio:', error);
     return NextResponse.json(
       { error: 'Error interno al crear el espacio' },
       { status: 500 }

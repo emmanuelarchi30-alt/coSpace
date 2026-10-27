@@ -3,11 +3,11 @@ import { jwtVerify } from 'jose';
 import { ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME } from '@/lib/auth';
 
 const ACCESS_SECRET = new TextEncoder().encode(
-  process.env.JWT_ACCESS_SECRET || 'default_jwt_access_secret_change_me_in_prod_12345678'
+  process.env.JWT_ACCESS_SECRET || 'clave_secreta_acceso_cospace_jwt_2026_segura_12345678'
 );
 
 const REFRESH_SECRET = new TextEncoder().encode(
-  process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret_change_me_in_prod_87654321'
+  process.env.JWT_REFRESH_SECRET || 'clave_secreta_refresco_cospace_jwt_2026_segura_87654321'
 );
 
 interface TokenData {
@@ -16,6 +16,7 @@ interface TokenData {
   email: string;
 }
 
+// Función auxiliar para verificar la firma del token con jose
 async function verifyToken(token: string, secret: Uint8Array): Promise<TokenData | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
@@ -29,6 +30,7 @@ async function verifyToken(token: string, secret: Uint8Array): Promise<TokenData
   }
 }
 
+// Proxy de protección de rutas privadas y administrativas en Next.js 16 (Requisito 8)
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
@@ -41,7 +43,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     session = await verifyToken(accessToken, ACCESS_SECRET);
   }
 
-  // If access token is expired or invalid, but refresh token exists, verify refresh token
+  // Si el access token expiró pero existe refresh token, verificar sesión activa
   if (!session && refreshToken) {
     session = await verifyToken(refreshToken, REFRESH_SECRET);
   }
@@ -50,19 +52,19 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   const isPrivateRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/my-reservations');
   const isAdminRoute = pathname.startsWith('/admin');
 
-  // 1. If accessing login/register while already authenticated, redirect to dashboard
+  // 1. Redirigir al dashboard si ya cuenta con sesión activa e intenta ir a login/registro
   if (isAuthRoute && session) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // 2. Protect private routes: must have active session
+  // 2. Proteger rutas privadas: requiere sesión activa obligatoria
   if (isPrivateRoute && !session) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('from', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 3. Protect admin routes: must have active session AND role === ADMIN
+  // 3. Proteger rutas de administración: requiere rol de ADMIN
   if (isAdminRoute) {
     if (!session) {
       const loginUrl = new URL('/login', request.url);
@@ -71,7 +73,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
 
     if (session.role !== 'ADMIN') {
-      // Forbidden: redirect to regular dashboard
+      // Bloquear acceso no autorizado y redirigir al dashboard
       return NextResponse.redirect(new URL('/dashboard?error=unauthorized_admin', request.url));
     }
   }

@@ -36,13 +36,10 @@ export default function HomePage(): React.JSX.Element {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {/* Hero Section */}
+      {/* Sección Principal Hero */}
       <section className="relative w-full py-12 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-        {/* Glow ambient backdrops */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[350px] bg-cyan-500/15 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-1/3 left-1/3 -translate-x-1/2 w-[400px] h-[300px] bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
 
-        {/* Floating Top Badge */}
+        {/* Insignia superior destacada */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-xl mb-4 shadow-lg shadow-cyan-500/10">
           <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
           <span className="text-xs font-semibold tracking-wide text-cyan-200">
@@ -50,7 +47,7 @@ export default function HomePage(): React.JSX.Element {
           </span>
         </div>
 
-        {/* ParticleText React Bits Component Integration */}
+        {/* Título interactivo con animación de partículas */}
         <div className="w-full max-w-4xl h-48 sm:h-64 my-1 relative flex items-center justify-center">
           <ParticleText
             text="CoSpace"
@@ -76,12 +73,12 @@ export default function HomePage(): React.JSX.Element {
           />
         </div>
 
-        {/* Subtitle */}
+        {/* Subtítulo descriptivo */}
         <p className="max-w-2xl text-base sm:text-lg text-slate-200 font-normal leading-relaxed mb-8 px-4">
           {t('home.hero.subtitle', 'Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas con diseño Liquid Glass.')}
         </p>
 
-        {/* Action Buttons */}
+        {/* Botones de acción principales */}
         <div className="flex flex-wrap items-center justify-center gap-4 z-10 mb-12">
           <Link
             href="/spaces"
@@ -98,7 +95,7 @@ export default function HomePage(): React.JSX.Element {
           </Link>
         </div>
 
-        {/* Live Metrics Highlights */}
+        {/* Métricas y beneficios en tiempo real */}
         <div className="w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
           <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
             <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
@@ -141,7 +138,7 @@ export default function HomePage(): React.JSX.Element {
           </div>
         </div>
 
-        {/* FolderFloat React Bits Component Integration with Actionable Navigation */}
+        {/* Fichero interactivo con accesos directos y físicas 2D */}
         <div className="w-full max-w-2xl my-8 p-6 sm:p-8 rounded-3xl liquid-glass border border-white/20 flex flex-col items-center shadow-2xl relative">
           <div className="text-center mb-6">
             <span className="text-[11px] font-mono tracking-widest text-cyan-300 uppercase font-bold">
@@ -182,7 +179,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* Categories Showcase with Liquid Glass Cards */}
+      {/* Muestrario de Categorías con Tarjetas de Cristal Líquido */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
@@ -194,7 +191,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Desk Card */}
+          {/* Tarjeta de Escritorios */}
           <div className="liquid-glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4">
             <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 shadow-md">
               <Monitor className="w-6 h-6" />
@@ -218,7 +215,7 @@ export default function HomePage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Meeting Room Card */}
+          {/* Tarjeta de Salas de Reunión */}
           <div className="liquid-glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4">
             <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shadow-md">
               <Users className="w-6 h-6" />
@@ -242,7 +239,7 @@ export default function HomePage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Cabin Card */}
+          {/* Tarjeta de Cabinas Acústicas */}
           <div className="liquid-glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4">
             <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shadow-md">
               <PhoneCall className="w-6 h-6" />
@@ -268,7 +265,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* Included Amenities Banner */}
+      {/* Banner de Servicios y Comodidades Incluidas */}
       <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 mb-8">
         <div className="liquid-glass p-8 rounded-3xl border border-white/15 flex flex-wrap items-center justify-around gap-6 text-center shadow-2xl">
           <div className="flex flex-col items-center gap-2">

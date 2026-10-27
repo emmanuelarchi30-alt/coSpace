@@ -215,8 +215,9 @@ cospace/
 │   │   └── globals.css           # Estilos globales y clases utilitarias Liquid Glass
 │   ├── components/
 │   │   ├── ui/
-│   │   │   ├── ParticleText.tsx  # Componente React Bits (Canvas de partículas en Hero)
-│   │   │   ├── FolderFloat.tsx   # Componente React Bits (Fichero con física Matter.js)
+│   │   │   ├── Ferrofluid.tsx    # Fondo interactivo con simulación de fluido magnético en WebGL
+│   │   │   ├── ParticleText.tsx  # Título interactivo con física de partículas en Canvas
+│   │   │   ├── FolderFloat.tsx   # Fichero interactivo con física 2D en Matter.js
 │   │   │   ├── ClientLocalClock.tsx # Componente de hidratación segura con hora local
 │   │   │   └── LanguageSelector.tsx # Selector interactivo ES / EN
 │   │   ├── shared/

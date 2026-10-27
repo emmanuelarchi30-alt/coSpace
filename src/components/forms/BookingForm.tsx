@@ -49,13 +49,13 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     setLoading(true);
 
     try {
-      // Create exact ISO timestamps for start and end
+      // Construir marcas de tiempo ISO exactas para inicio y fin
       const [year, month, day] = date.split('-').map(Number);
       const start = new Date(year, month - 1, day, startHour, 0, 0, 0);
       const end = new Date(year, month - 1, day, startHour + hours, 0, 0, 0);
 
-      // Generate a unique idempotency key for this booking attempt
-      const idempotencyKey = `booking-${spaceId}-${start.getTime()}-${Math.random().toString(36).substring(2, 9)}`;
+      // Generar clave de idempotencia única para prevenir doble reserva
+      const idempotencyKey = `reserva-${spaceId}-${start.getTime()}-${Math.random().toString(36).substring(2, 9)}`;
 
       const res = await fetch('/api/reservations', {
         method: 'POST',

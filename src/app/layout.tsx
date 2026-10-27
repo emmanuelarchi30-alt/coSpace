@@ -16,17 +16,18 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200 relative overflow-x-hidden">
-        {/* Ambient Ferrofluid Interactive Background from React Bits */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-45 w-full h-full">
+        {/* Fondo interactivo con fluido magnético */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden w-full h-full">
           <Ferrofluid
             colors={['#ffffff', '#06b6d4', '#06b6d4']}
-            spikeHeight={1}
+            spikeHeight={1.2}
             sharpness={2.5}
             tilt={48}
-            magnets={2}
             mouseInteraction={true}
             clickPulse={true}
-            transparent={true}
+            transparent={false}
+            color="#030712"
+            brightness={1.2}
           />
         </div>
 
