@@ -4,8 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { SpaceType } from '@prisma/client';
 import { Users, MapPin, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nContext';
-import ElectricButton from '@/components/ui/ElectricButton';
 
 export interface SpaceCardProps {
   id: string;
@@ -121,19 +121,15 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({
           </div>
         </div>
 
-        {/* Action Button con animación de borde eléctrico */}
+        {/* Action Button */}
         <div className="pt-2 border-t border-white/10 flex justify-center">
-          <ElectricButton
+          <Link
             href={`/spaces/${id}`}
-            color="#06b6d4"
-            borderRadius={12}
-            thickness={1.3}
-            wrapperClassName="w-full"
-            className="w-full liquid-glass-btn-secondary px-4 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2 group/btn"
+            className="w-full liquid-glass-btn-secondary px-4 py-2.5 rounded-xl text-xs font-semibold text-white flex items-center justify-center gap-2 group/btn border border-cyan-500/30 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 transition-all hover:scale-[1.01]"
           >
             <span>{t('catalog.viewDetails')}</span>
             <ArrowRight className="w-3.5 h-3.5 text-cyan-400 group-hover/btn:translate-x-1 transition-transform" />
-          </ElectricButton>
+          </Link>
         </div>
       </div>
     </div>

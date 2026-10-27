@@ -766,9 +766,9 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       pointer.near = false;
     };
 
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
-    document.documentElement.addEventListener('pointerleave', onLeave);
+    container.addEventListener('pointermove', onPointerMove, { passive: true });
+    container.addEventListener('pointerdown', onPointerDown, { passive: true });
+    container.addEventListener('pointerleave', onLeave);
 
     const onLost = (event: Event): void => {
       event.preventDefault();
@@ -806,9 +806,9 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       wakeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerdown', onPointerDown);
-      document.documentElement.removeEventListener('pointerleave', onLeave);
+      container.removeEventListener('pointermove', onPointerMove);
+      container.removeEventListener('pointerdown', onPointerDown);
+      container.removeEventListener('pointerleave', onLeave);
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('webglcontextlost', onLost);
       canvas.removeEventListener('webglcontextrestored', onRestored);
@@ -825,11 +825,13 @@ export const ElectricBorder: React.FC<ElectricBorderProps> = ({
       className={`electric-border${className ? ` ${className}` : ''}`}
       style={{ borderRadius, ...style }}
     >
-      {children}
+      <div className="electric-border__content">
+        {children}
+      </div>
       <canvas
         ref={canvasRef}
         className="electric-border__canvas"
-        style={{ top: -MARGIN, left: -MARGIN }}
+        style={{ top: -MARGIN, left: -MARGIN, pointerEvents: 'none' }}
         aria-hidden="true"
       />
     </div>

@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import ParticleText from '@/components/ui/ParticleText';
 import FolderFloat from '@/components/ui/FolderFloat';
-import ElectricButton from '@/components/ui/ElectricButton';
+import ElectricBorder from '@/components/ui/ElectricBorder';
 import {
   ArrowRight,
   Sparkles,
@@ -78,72 +79,74 @@ export default function HomePage(): React.JSX.Element {
           {t('home.hero.subtitle', 'Reserva escritorios de enfoque, salas directivas de juntas y cabinas insonorizadas por horas completas con diseño Liquid Glass.')}
         </p>
 
-        {/* Botones de acción principales con animación de bordes eléctricos */}
+        {/* Botones de acción principales */}
         <div className="flex flex-wrap items-center justify-center gap-4 z-10 mb-12">
-          <ElectricButton
+          <Link
             href="/spaces"
-            color="#06b6d4"
-            borderRadius={16}
-            thickness={1.5}
-            glow={0.8}
-            className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group"
+            className="liquid-glass-btn px-7 py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 group hover:scale-105 border border-cyan-400/40 hover:border-cyan-300 transition-all"
           >
             <span>{t('home.hero.explore', 'Explorar Catálogo de Espacios')}</span>
             <ArrowRight className="w-4 h-4 text-cyan-100 group-hover:translate-x-1 transition-transform" />
-          </ElectricButton>
-          <ElectricButton
+          </Link>
+          <Link
             href="/register"
-            color="#8b5cf6"
-            borderRadius={16}
-            thickness={1.5}
-            glow={0.7}
-            className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white"
+            className="liquid-glass-btn-secondary px-7 py-3.5 rounded-2xl text-sm font-semibold text-white hover:text-white hover:scale-105 border border-purple-500/50 hover:border-purple-300 shadow-lg shadow-purple-500/20 transition-all"
           >
             {t('nav.register', 'Crear Cuenta Gratis')}
-          </ElectricButton>
+          </Link>
         </div>
 
-        {/* Métricas y beneficios en tiempo real */}
-        <div className="w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
-          <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
-              <Zap className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-white block">1 a 4 Horas</span>
-              <span className="text-[11px] text-slate-400">En horas completas</span>
-            </div>
-          </div>
+        {/* Métricas y beneficios en tiempo real con borde eléctrico animado React Bits */}
+        <div className="w-full max-w-4xl my-6">
+          <ElectricBorder
+            color="#06b6d4"
+            borderRadius={20}
+            thickness={1.5}
+            glow={0.8}
+            className="w-full"
+          >
+            <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-3 p-1">
+              <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-white block">1 a 4 Horas</span>
+                  <span className="text-[11px] text-slate-400">En horas completas</span>
+                </div>
+              </div>
 
-          <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
-            <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-white block">7:00 a 21:00</span>
-              <span className="text-[11px] text-slate-400">Horario continuo</span>
-            </div>
-          </div>
+              <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-white block">7:00 a 21:00</span>
+                  <span className="text-[11px] text-slate-400">Horario continuo</span>
+                </div>
+              </div>
 
-          <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-              <CalendarCheck className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-white block">Inmediata</span>
-              <span className="text-[11px] text-slate-400">Confirmación al instante</span>
-            </div>
-          </div>
+              <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                  <CalendarCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-white block">Inmediata</span>
+                  <span className="text-[11px] text-slate-400">Confirmación al instante</span>
+                </div>
+              </div>
 
-          <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4" />
+              <div className="liquid-glass p-3.5 rounded-2xl border border-white/10 flex items-center gap-3 text-left">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-white block">Cancela 2h</span>
+                  <span className="text-[11px] text-slate-400">Hasta 2h antes</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-sm font-bold text-white block">Cancela 2h</span>
-              <span className="text-[11px] text-slate-400">Hasta 2h antes</span>
-            </div>
-          </div>
+          </ElectricBorder>
         </div>
 
         {/* Fichero interactivo con accesos directos y físicas 2D */}
@@ -217,9 +220,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-cyan-300">Desde $15.00/h</span>
-              <ElectricButton href="/spaces?type=DESK" color="#06b6d4" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <Link href="/spaces?type=DESK" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1 hover:scale-105 transition-transform border border-cyan-500/40">
                 Ver escritorios <ArrowRight className="w-3 h-3" />
-              </ElectricButton>
+              </Link>
             </div>
           </div>
 
@@ -241,9 +244,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-purple-300">Desde $40.00/h</span>
-              <ElectricButton href="/spaces?type=MEETING_ROOM" color="#a855f7" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <Link href="/spaces?type=MEETING_ROOM" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1 hover:scale-105 transition-transform border border-purple-500/40">
                 Ver salas <ArrowRight className="w-3 h-3" />
-              </ElectricButton>
+              </Link>
             </div>
           </div>
 
@@ -265,9 +268,9 @@ export default function HomePage(): React.JSX.Element {
             </div>
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-200">
               <span className="font-bold text-amber-300">Desde $22.00/h</span>
-              <ElectricButton href="/spaces?type=CABIN" color="#f59e0b" borderRadius={8} thickness={1.2} className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1">
+              <Link href="/spaces?type=CABIN" className="liquid-glass-btn px-3.5 py-1.5 rounded-lg text-xs font-bold text-white flex items-center gap-1 hover:scale-105 transition-transform border border-amber-500/40">
                 Ver cabinas <ArrowRight className="w-3 h-3" />
-              </ElectricButton>
+              </Link>
             </div>
           </div>
         </div>

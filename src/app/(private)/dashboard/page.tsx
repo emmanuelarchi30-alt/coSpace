@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import {
   Calendar,
@@ -39,6 +40,7 @@ interface ReservationItem {
 // Strategy: CSR (Client-Side Rendering as required by Requirement 4)
 export default function DashboardPage(): React.JSX.Element {
   const { t } = useI18n();
+  const router = useRouter();
   const [reservations, setReservations] = useState<ReservationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -46,13 +48,16 @@ export default function DashboardPage(): React.JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const fetchReservations = async (): Promise<void> => {
+  const fetchReservations = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
       const res = await fetch('/api/reservations');
       if (res.ok) {
         const data = await res.json();
         setReservations(data.reservations || []);
+      } else if (res.status === 401) {
+        router.push('/login?from=/dashboard');
+        return;
       } else {
         setErrorMessage('Error al cargar las reservas');
       }
@@ -61,11 +66,11 @@ export default function DashboardPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchReservations();
-  }, []);
+  }, [fetchReservations]);
 
   const handleCancelReservation = async (id: string): Promise<void> => {
     setCancellingId(id);

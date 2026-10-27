@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nContext';
 import { Calendar, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import ElectricBorder from '@/components/ui/ElectricBorder';
 
 interface BookingFormProps {
   spaceId: string;
@@ -214,33 +213,25 @@ export const BookingForm: React.FC<BookingFormProps> = ({
           </span>
         </div>
 
-        {/* Submit Button con borde eléctrico animado */}
+        {/* Submit Button */}
         <div className="mt-4">
-          <ElectricBorder
-            color="#06b6d4"
-            borderRadius={12}
-            thickness={1.5}
-            glow={0.8}
-            className="w-full flex"
+          <button
+            type="submit"
+            disabled={loading || success}
+            className="w-full liquid-glass-btn py-3.5 rounded-xl font-bold text-white text-sm border border-cyan-500/40 hover:border-cyan-300 shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="w-full liquid-glass-btn py-3.5 rounded-xl font-bold text-white text-sm shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Validando disponibilidad...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  <span>{t('detail.confirmBooking')}</span>
-                </>
-              )}
-            </button>
-          </ElectricBorder>
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Validando disponibilidad...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                <span>{t('detail.confirmBooking')}</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>
